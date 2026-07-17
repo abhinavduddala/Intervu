@@ -12,8 +12,10 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid PostgreSQL connection URL'),
   JUDGE0_API_URL: z.string().url('JUDGE0_API_URL must be a valid URL'),
   JUDGE0_API_KEY: z.string().optional(),
-  OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required'),
-  OPENAI_MODEL: z.string().default('gpt-4o'),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_MODEL: z.string().optional(),
+  GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
   CLIENT_URL: z.string().url('CLIENT_URL must be a valid URL').default('http://localhost:3000')
 });
 

@@ -1,0 +1,320 @@
+[
+  {
+    "id": "PP-0001",
+    "title": "Contains Duplicate",
+    "slug": "contains-duplicate",
+    "topic": "Arrays & Hashing",
+    "pattern": "Hash Set",
+    "difficulty": "Easy",
+    "learningOrder": 1,
+    "estimatedTime": 10,
+    "frequency": "High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/contains-duplicate/",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Apple",
+      "Microsoft"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=3OamzN90ipg",
+    "articleUrl": "https://leetcode.com/problems/contains-duplicate/editorial/",
+    "hint": "Use a HashSet to find duplicates in O(N).",
+    "prerequisites": [],
+    "recommendedNext": [
+      "Valid Anagram"
+    ],
+    "acceptanceRate": 61.2,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0002",
+    "title": "Valid Anagram",
+    "slug": "valid-anagram",
+    "topic": "Arrays & Hashing",
+    "pattern": "Frequency Counting",
+    "difficulty": "Easy",
+    "learningOrder": 2,
+    "estimatedTime": 12,
+    "frequency": "High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/valid-anagram/",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Meta"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=9UtInBqnCgA",
+    "articleUrl": "https://leetcode.com/problems/valid-anagram/editorial/",
+    "hint": "Count character frequencies using an array or hash map.",
+    "prerequisites": [
+      "Contains Duplicate"
+    ],
+    "recommendedNext": [
+      "Two Sum"
+    ],
+    "acceptanceRate": 63.4,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0003",
+    "title": "Two Sum",
+    "slug": "two-sum",
+    "topic": "Arrays & Hashing",
+    "pattern": "Hash Map",
+    "difficulty": "Easy",
+    "learningOrder": 3,
+    "estimatedTime": 15,
+    "frequency": "Very High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/two-sum/",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=KLlXCFG5Tk0",
+    "articleUrl": "https://leetcode.com/problems/two-sum/editorial/",
+    "hint": "Use a HashMap to store visited numbers.",
+    "prerequisites": [
+      "Valid Anagram"
+    ],
+    "recommendedNext": [
+      "Group Anagrams"
+    ],
+    "acceptanceRate": 50.8,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0004",
+    "title": "Group Anagrams",
+    "slug": "group-anagrams",
+    "topic": "Arrays & Hashing",
+    "pattern": "Hash Map",
+    "difficulty": "Medium",
+    "learningOrder": 4,
+    "estimatedTime": 25,
+    "frequency": "Very High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/group-anagrams/",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Uber"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=vzdNOK2oB2E",
+    "articleUrl": "https://leetcode.com/problems/group-anagrams/editorial/",
+    "hint": "Use sorted strings as hash map keys to group them.",
+    "prerequisites": [
+      "Valid Anagram",
+      "Two Sum"
+    ],
+    "recommendedNext": [
+      "Top K Frequent Elements"
+    ],
+    "acceptanceRate": 67.2,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0005",
+    "title": "Top K Frequent Elements",
+    "slug": "top-k-frequent-elements",
+    "topic": "Arrays & Hashing",
+    "pattern": "Bucket Sort",
+    "difficulty": "Medium",
+    "learningOrder": 5,
+    "estimatedTime": 30,
+    "frequency": "High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/top-k-frequent-elements/",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=YPTqKIgVk-k",
+    "articleUrl": "https://leetcode.com/problems/top-k-frequent-elements/editorial/",
+    "hint": "Count frequencies, then use bucket sort or a min-heap.",
+    "prerequisites": [
+      "Group Anagrams"
+    ],
+    "recommendedNext": [
+      "Encode and Decode Strings"
+    ],
+    "acceptanceRate": 62.8,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0006",
+    "title": "Encode and Decode Strings",
+    "slug": "encode-and-decode-strings",
+    "topic": "Arrays & Hashing",
+    "pattern": "Simulation",
+    "difficulty": "Medium",
+    "learningOrder": 6,
+    "estimatedTime": 25,
+    "frequency": "Medium",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/encode-and-decode-strings/",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=B1k_qgHYmHo",
+    "articleUrl": "https://leetcode.com/problems/encode-and-decode-strings/editorial/",
+    "hint": "Use a length prefix followed by a delimiter like #.",
+    "prerequisites": [
+      "Group Anagrams"
+    ],
+    "recommendedNext": [
+      "Product of Array Except Self"
+    ],
+    "acceptanceRate": 60.1,
+    "revisionPriority": 1,
+    "isPremium": true,
+    "isActive": true
+  },
+  {
+    "id": "PP-0007",
+    "title": "Product of Array Except Self",
+    "slug": "product-of-array-except-self",
+    "topic": "Arrays & Hashing",
+    "pattern": "Prefix Sum",
+    "difficulty": "Medium",
+    "learningOrder": 7,
+    "estimatedTime": 20,
+    "frequency": "Very High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/product-of-array-except-self/",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Microsoft",
+      "Apple",
+      "Uber"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=b8vxWYgeg8Y",
+    "articleUrl": "https://leetcode.com/problems/product-of-array-except-self/editorial/",
+    "hint": "Calculate prefix and suffix products in two passes.",
+    "prerequisites": [
+      "Top K Frequent Elements"
+    ],
+    "recommendedNext": [
+      "Valid Sudoku"
+    ],
+    "acceptanceRate": 65.2,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0008",
+    "title": "Valid Sudoku",
+    "slug": "valid-sudoku",
+    "topic": "Arrays & Hashing",
+    "pattern": "Hash Set",
+    "difficulty": "Medium",
+    "learningOrder": 8,
+    "estimatedTime": 25,
+    "frequency": "High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/valid-sudoku/",
+    "companyTags": [
+      "Uber",
+      "Google",
+      "Amazon",
+      "Apple"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=TjFXEUCMqI8",
+    "articleUrl": "https://leetcode.com/problems/valid-sudoku/editorial/",
+    "hint": "Use HashSets to track digits seen in rows, cols, and 3x3 sub-grids.",
+    "prerequisites": [
+      "Contains Duplicate"
+    ],
+    "recommendedNext": [
+      "Longest Consecutive Sequence"
+    ],
+    "acceptanceRate": 59.5,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0009",
+    "title": "Longest Consecutive Sequence",
+    "slug": "longest-consecutive-sequence",
+    "topic": "Arrays & Hashing",
+    "pattern": "Hash Set",
+    "difficulty": "Medium",
+    "learningOrder": 9,
+    "estimatedTime": 30,
+    "frequency": "Very High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Meta"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=P6RZZMu_maU",
+    "articleUrl": "https://leetcode.com/problems/longest-consecutive-sequence/editorial/",
+    "hint": "Store elements in a HashSet. Only start counting from elements that have no predecessor.",
+    "prerequisites": [
+      "Contains Duplicate",
+      "Valid Sudoku"
+    ],
+    "recommendedNext": [
+      "Subarray Sum Equals K"
+    ],
+    "acceptanceRate": 47.3,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  },
+  {
+    "id": "PP-0010",
+    "title": "Subarray Sum Equals K",
+    "slug": "subarray-sum-equals-k",
+    "topic": "Arrays & Hashing",
+    "pattern": "Prefix Sum",
+    "difficulty": "Medium",
+    "learningOrder": 10,
+    "estimatedTime": 30,
+    "frequency": "High",
+    "source": "LeetCode",
+    "sourceUrl": "https://leetcode.com/problems/subarray-sum-equals-k/",
+    "companyTags": [
+      "Meta",
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
+    "videoSolutionUrl": "https://www.youtube.com/watch?v=fFVZt-6sHCY",
+    "articleUrl": "https://leetcode.com/problems/subarray-sum-equals-k/editorial/",
+    "hint": "Use a Hash Map to store frequency of prefix sums.",
+    "prerequisites": [
+      "Product of Array Except Self"
+    ],
+    "recommendedNext": [],
+    "acceptanceRate": 43.8,
+    "revisionPriority": 1,
+    "isPremium": false,
+    "isActive": true
+  }
+]

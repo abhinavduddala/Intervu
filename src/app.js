@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -31,6 +32,35 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// API routes
+const authRoutes = require('./modules/auth/auth.routes');
+const userRoutes = require('./modules/user/user.routes');
+const questionsRoutes = require('./modules/questions/questions.routes');
+const topicsRoutes = require('./modules/questions/topics.routes');
+const patternsRoutes = require('./modules/questions/patterns.routes');
+const submissionsRoutes = require('./modules/submissions/submissions.routes');
+const aiRoutes = require('./modules/ai/ai.routes');
+const analyticsRoutes = require('./modules/analytics/analytics.routes');
+const companyRoutes = require('./modules/company/company.routes');
+const recommendationsRoutes = require('./modules/recommendations/recommendations.routes');
+const revisionRoutes = require('./modules/revision/revision.routes');
+const importRoutes = require('./modules/import/import.routes');
+const roadmapRoutes = require('./modules/roadmap/roadmap.routes');
+
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/questions', questionsRoutes);
+app.use('/api/v1/topics', topicsRoutes);
+app.use('/api/v1/patterns', patternsRoutes);
+app.use('/api/v1/submissions', submissionsRoutes);
+app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/company', companyRoutes);
+app.use('/api/v1/recommendations', recommendationsRoutes);
+app.use('/api/v1/revision', revisionRoutes);
+app.use('/api/v1/admin/import', importRoutes);
+app.use('/api/v1/roadmap', roadmapRoutes);
 
 // Base Health Check endpoint
 app.get('/health', async (req, res, next) => {

@@ -1,0 +1,93 @@
+[
+  {
+    "id": 1,
+    "user_id": 15,
+    "question_id": 1,
+    "status": "SOLVED",
+    "started_at": "2026-06-30T05:35:17.828Z",
+    "completed_at": "2026-06-30T05:35:40.568Z",
+    "leetcode_submission_url": "https://leetcode.com/problems/two-sum/",
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 2,
+    "user_id": 11,
+    "question_id": 1,
+    "status": "SOLVED",
+    "started_at": "2026-07-05T04:51:23.795Z",
+    "completed_at": "2026-07-09T04:58:51.693Z",
+    "leetcode_submission_url": null,
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 3,
+    "user_id": 12,
+    "question_id": 1,
+    "status": "SOLVED",
+    "started_at": "2026-07-05T06:35:57.225Z",
+    "completed_at": "2026-07-05T06:36:24.950Z",
+    "leetcode_submission_url": "https://leetcode.com/problems/two-sum/",
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 4,
+    "user_id": 12,
+    "question_id": 6,
+    "status": "SOLVED",
+    "started_at": "2026-07-05T06:37:05.165Z",
+    "completed_at": "2026-07-05T06:37:05.165Z",
+    "leetcode_submission_url": null,
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 5,
+    "user_id": 17,
+    "question_id": 1,
+    "status": "SOLVED",
+    "started_at": "2026-07-05T15:48:39.699Z",
+    "completed_at": "2026-07-05T15:57:44.247Z",
+    "leetcode_submission_url": null,
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 6,
+    "user_id": 11,
+    "question_id": 7,
+    "status": "SOLVED",
+    "started_at": "2026-07-09T04:40:17.617Z",
+    "completed_at": "2026-07-09T04:41:11.356Z",
+    "leetcode_submission_url": null,
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  },
+  {
+    "id": 7,
+    "user_id": 18,
+    "question_id": 1,
+    "status": "SOLVED",
+    "started_at": "2026-07-14T12:51:59.053Z",
+    "completed_at": "2026-07-14T12:51:59.053Z",
+    "leetcode_submission_url": null,
+    "notes": null,
+    "favorite": false,
+    "revision_count": 0,
+    "last_revised_at": null
+  }
+]

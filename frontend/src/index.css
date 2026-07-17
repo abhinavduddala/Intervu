@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar matching SaaS style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Focus styles for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid #4F46E5;
+  outline-offset: 2px;
+}
+
+/* Input with Icon Standard Structure */
+.field-control {
+  position: relative;
+}
+
+.field-icon {
+  position: absolute !important;
+  left: 14px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  pointer-events: none !important;
+}
+
+.input-with-icon {
+  padding-left: 44px !important;
+}
+
+/* ==========================================================================
+   Premium Dark Mode Theme Overrides
+   ========================================================================== */
+
+/* Dark Mode Base Styles */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #090d16 !important; /* Pitch dark deep blue/black background */
+  color: #f8fafc !important;
+}
+
+/* Background Color Overrides */
+html.dark .bg-white {
+  background-color: #131b2e !important; /* Dark card/container background */
+}
+
+html.dark .bg-\[\#F8FAFC\],
+html.dark .bg-\[\#f8fafc\] {
+  background-color: #090d16 !important; /* Page background color */
+}
+
+html.dark .bg-slate-50 {
+  background-color: #0f172a !important; /* Dark slate background */
+}
+
+html.dark .bg-indigo-50\/60,
+html.dark .bg-slate-50\/80 {
+  background-color: #1c253b !important;
+}
+
+html.dark .bg-indigo-50 {
+  background-color: #1e1b4b !important; /* Indigo background */
+}
+
+html.dark .bg-\[\#E2E8F0\] {
+  background-color: #334155 !important;
+}
+
+html.dark .bg-emerald-50 {
+  background-color: #022c22 !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: #451a03 !important;
+}
+
+html.dark .bg-red-50 {
+  background-color: #450a0a !important;
+}
+
+html.dark .bg-slate-500 {
+  background-color: #64748b !important;
+}
+
+/* Text Color Overrides */
+html.dark .text-\[\#0F172A\],
+html.dark .text-\[\#020617\],
+html.dark .text-slate-900 {
+  color: #f8fafc !important; /* High contrast primary text */
+}
+
+html.dark .text-\[\#64748B\],
+html.dark .text-\[\#475569\],
+html.dark .text-\[\#334155\],
+html.dark .text-slate-500 {
+  color: #94a3b8 !important; /* Slate sub-text */
+}
+
+html.dark .text-\[\#4F46E5\],
+html.dark .text-indigo-600 {
+  color: #818cf8 !important; /* Highly visible indigo accent */
+}
+
+html.dark .text-emerald-700 {
+  color: #34d399 !important;
+}
+
+html.dark .text-amber-700 {
+  color: #fbbf24 !important;
+}
+
+html.dark .text-red-700 {
+  color: #f87171 !important;
+}
+
+html.dark .text-white {
+  color: #ffffff !important;
+}
+
+/* Borders and Line Colors */
+html.dark .border-\[\#E2E8F0\],
+html.dark .border-\[\#F1F5F9\],
+html.dark .border-slate-200,
+html.dark .border-indigo-100\/50 {
+  border-color: #1e293b !important; /* Border lines */
+}
+
+html.dark .border-indigo-100 {
+  border-color: #312e81 !important;
+}
+
+/* Hover State Overrides */
+html.dark .hover\:bg-\[\#F1F5F9\]:hover,
+html.dark .hover\:bg-slate-50\/80:hover {
+  background-color: #1c253b !important;
+}
+
+/* Inputs, Textareas, Selection Overrides */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #475569 !important;
+}
+
+/* Sidebar and Header Specific Border overrides */
+html.dark .border-r,
+html.dark .border-b {
+  border-color: #1e293b !important;
+}
+
+/* Custom shadow adjustments for dark mode */
+html.dark .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.5) !important;
+}
+

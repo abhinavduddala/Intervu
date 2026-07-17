@@ -1,0 +1,353 @@
+[
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Amazon",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Trees",
+      "Arrays",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-09T04:39:37.595Z"
+  },
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Google",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Trees"
+    ],
+    "last_updated": "2026-07-09T04:39:37.624Z"
+  },
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Microsoft",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Stacks"
+    ],
+    "last_updated": "2026-07-09T04:39:37.652Z"
+  },
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Uber",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-09T04:39:37.683Z"
+  },
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Qualcomm",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Stacks",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-09T04:39:37.713Z"
+  },
+  {
+    "id": 19,
+    "user_id": 11,
+    "company_name": "Goldman Sachs",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-09T04:39:37.744Z"
+  },
+  {
+    "id": 7,
+    "user_id": 11,
+    "company_name": "Atlassian",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Stacks",
+      "Queues",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-05T06:18:53.155Z"
+  },
+  {
+    "id": 8,
+    "user_id": 11,
+    "company_name": "Meta",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-05T06:18:53.266Z"
+  },
+  {
+    "id": 9,
+    "user_id": 11,
+    "company_name": "Netflix",
+    "readiness_score": 14.8,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-05T06:18:53.303Z"
+  },
+  {
+    "id": 19,
+    "user_id": 17,
+    "company_name": "Amazon",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Trees",
+      "Arrays",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-05T15:58:05.914Z"
+  },
+  {
+    "id": 19,
+    "user_id": 17,
+    "company_name": "Google",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Trees"
+    ],
+    "last_updated": "2026-07-05T15:58:06.119Z"
+  },
+  {
+    "id": 19,
+    "user_id": 17,
+    "company_name": "Microsoft",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Stacks"
+    ],
+    "last_updated": "2026-07-05T15:58:06.287Z"
+  },
+  {
+    "id": 19,
+    "user_id": 17,
+    "company_name": "Uber",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-05T15:58:06.567Z"
+  },
+  {
+    "id": 19,
+    "user_id": 17,
+    "company_name": "Qualcomm",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Stacks",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-05T15:58:06.914Z"
+  },
+  {
+    "id": 18,
+    "user_id": 17,
+    "company_name": "Goldman Sachs",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-05T15:51:09.554Z"
+  },
+  {
+    "id": 18,
+    "user_id": 17,
+    "company_name": "Atlassian",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Stacks",
+      "Queues",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-05T15:51:09.624Z"
+  },
+  {
+    "id": 18,
+    "user_id": 17,
+    "company_name": "Meta",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-05T15:51:09.696Z"
+  },
+  {
+    "id": 18,
+    "user_id": 17,
+    "company_name": "Netflix",
+    "readiness_score": 10,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-05T15:51:09.739Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Amazon",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Trees",
+      "Arrays",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-14T16:07:22.611Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Google",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Trees"
+    ],
+    "last_updated": "2026-07-14T16:07:22.691Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Microsoft",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Stacks"
+    ],
+    "last_updated": "2026-07-14T16:07:22.790Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Uber",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Graphs",
+      "Dynamic Programming",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-14T16:07:22.816Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Qualcomm",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Stacks",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-14T16:07:22.843Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Goldman Sachs",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Recursion"
+    ],
+    "last_updated": "2026-07-14T16:07:22.881Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Atlassian",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Stacks",
+      "Queues",
+      "Arrays"
+    ],
+    "last_updated": "2026-07-14T16:07:22.923Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Meta",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Trees",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-14T16:04:24.868Z"
+  },
+  {
+    "id": 28,
+    "user_id": 18,
+    "company_name": "Netflix",
+    "readiness_score": 15,
+    "strengths": [],
+    "weak_topics": [
+      "Arrays",
+      "Dynamic Programming",
+      "Graphs"
+    ],
+    "last_updated": "2026-07-14T16:04:24.894Z"
+  }
+]

@@ -10,7 +10,7 @@ if (!databaseUrl) {
 
 const pool = new Pool({
   connectionString: databaseUrl,
-  max: 10,
+  max: 30,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
 });

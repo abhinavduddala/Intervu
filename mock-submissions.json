@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "user_id": 15,
+    "question_id": 1,
+    "source_code": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        int arr[]=new int[2];\n        for(int i=0;i<nums.length;i++)\n        {\n            for(int j=i+1;j<nums.length;j++)\n            {\n                if(nums[i]+nums[j]==target)\n                {\n                    arr[0]=i;\n                    arr[1]=j;\n                    return arr;\n                }\n            }\n        }\n        return arr;\n        \n    }\n}",
+    "language_id": 62,
+    "status_id": 3,
+    "status_description": "Accepted",
+    "created_at": "2026-06-30T05:35:01.465Z",
+    "updated_at": "2026-06-30T05:35:01.465Z"
+  },
+  {
+    "id": 2,
+    "user_id": 15,
+    "question_id": 1,
+    "source_code": "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        int arr[]=new int[2];\n        for(int i=0;i<nums.length;i++)\n        {\n            for(int j=i+1;j<nums.length;j++)\n            {\n                if(nums[i]+nums[j]==target)\n                {\n                    arr[0]=i;\n                    arr[1]=j;\n                    return arr;\n                }\n            }\n        }\n        return arr;\n        \n    }\n}",
+    "language_id": 62,
+    "status_id": 3,
+    "status_description": "Accepted",
+    "created_at": "2026-06-30T05:35:47.702Z",
+    "updated_at": "2026-06-30T05:35:47.702Z"
+  },
+  {
+    "id": 3,
+    "user_id": 11,
+    "question_id": 1,
+    "source_code": "print(\"Hello World\")",
+    "language_id": 71,
+    "status_id": 3,
+    "status_description": "Accepted",
+    "created_at": "2026-07-05T05:18:18.203Z",
+    "updated_at": "2026-07-05T05:18:18.203Z"
+  },
+  {
+    "id": 4,
+    "user_id": 11,
+    "question_id": 1,
+    "source_code": "print(\"Hello World\")",
+    "language_id": 71,
+    "status_id": 3,
+    "status_description": "Accepted",
+    "created_at": "2026-07-05T05:18:22.760Z",
+    "updated_at": "2026-07-05T05:18:22.763Z"
+  }
+]
