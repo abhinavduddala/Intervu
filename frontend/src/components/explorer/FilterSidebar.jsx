@@ -60,7 +60,7 @@ const FilterSidebar = ({
   onReset 
 }) => {
   // Accordion state: only one expanded section at a time
-  const [expandedSection, setExpandedSection] = useState('topics'); // 'topics' | 'patterns' | 'companies' | null
+  const [expandedSection, setExpandedSection] = useState(null); // 'topics' | 'patterns' | 'companies' | null
 
   const toggleSection = (section) => {
     setExpandedSection(expandedSection === section ? null : section);

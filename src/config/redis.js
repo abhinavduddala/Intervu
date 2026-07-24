@@ -17,6 +17,10 @@ redis.on('error', (err) => {
 
 // Helper to clear keys by pattern
 const clearKeysByPattern = async (pattern) => {
+  if (redis.status !== 'ready') {
+    logger.warn(`[Cache] Redis is not ready (status: ${redis.status}). Skipping clearing keys for pattern: ${pattern}`);
+    return;
+  }
   try {
     const keys = await redis.keys(pattern);
     if (keys.length > 0) {

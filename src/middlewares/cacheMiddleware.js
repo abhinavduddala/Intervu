@@ -8,6 +8,11 @@ const cacheMiddleware = (ttl = 3600) => {
       return next();
     }
 
+    if (redis.status !== 'ready') {
+      logger.warn(`[Cache] Redis is not ready (status: ${redis.status}). Bypassing cache.`);
+      return next();
+    }
+
     const cacheKey = `cache:${req.originalUrl}`;
 
     try {
@@ -27,8 +32,12 @@ const cacheMiddleware = (ttl = 3600) => {
       res.json = function (body) {
         // Only cache successful status codes
         if (res.statusCode >= 200 && res.statusCode < 300) {
-          redis.set(cacheKey, JSON.stringify(body), 'EX', ttl)
-            .catch(err => logger.error(`[Cache] Failed to write key ${cacheKey}:`, err.message));
+          if (redis.status === 'ready') {
+            redis.set(cacheKey, JSON.stringify(body), 'EX', ttl)
+              .catch(err => logger.error(`[Cache] Failed to write key ${cacheKey}:`, err.message));
+          } else {
+            logger.warn(`[Cache] Redis is not ready (status: ${redis.status}). Skipping write.`);
+          }
         }
         return originalJson.call(this, body);
       };
