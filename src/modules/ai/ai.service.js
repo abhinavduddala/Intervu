@@ -16,6 +16,16 @@ const parseResult = (raw) => {
   }
 };
 
+// Older rows stored raw provider errors; never show the provider name to users
+const publicErrorMessage = (message) => {
+  if (!message) return null;
+  if (!/gemini|google/i.test(message)) return message;
+  if (/high demand|overloaded|unavailable/i.test(message)) {
+    return 'The AI service is busy right now. Please try again in a few minutes.';
+  }
+  return 'The AI review failed. Please try again.';
+};
+
 const formatAnalysis = (row) => {
   if (!row) return null;
 
@@ -28,10 +38,8 @@ const formatAnalysis = (row) => {
     submissionId: row.submission_id || null,
     language: row.language,
     submittedCode: row.submitted_code,
-    modelName: row.model_name,
-    provider: row.provider,
     status: row.status || 'completed',
-    errorMessage: row.error_message || null,
+    errorMessage: publicErrorMessage(row.error_message),
     createdAt: row.created_at,
     timestamp: row.created_at, // Compatibility tag for WorkspacePage history widget
 

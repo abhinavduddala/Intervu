@@ -32,7 +32,7 @@ const isConfigured = () =>
 const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs = 120000, temperature } = {}) => {
   if (!isConfigured()) {
     throw new AppError(
-      'Gemini API key is not configured. Please set a valid GEMINI_API_KEY in the environment settings.',
+      'The AI service is not configured. Please set a valid GEMINI_API_KEY in the environment settings.',
       503,
       'SERVICE_UNAVAILABLE'
     );
@@ -60,9 +60,9 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
       // Check if response was blocked or finished incorrectly
       const candidate = response.candidates?.[0];
       if (candidate?.finishReason === 'SAFETY') {
-        throw new AppError('The code review content was blocked by Gemini safety filters.', 400, 'CONTENT_BLOCKED');
+        throw new AppError('The AI could not process this content because of its safety filters.', 400, 'CONTENT_BLOCKED');
       }
-      throw new AppError('Gemini returned an empty review response.', 502, 'BAD_GATEWAY');
+      throw new AppError('The AI returned an empty response. Please try again.', 502, 'BAD_GATEWAY');
     }
 
     let parsedResult;
@@ -70,7 +70,7 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
       parsedResult = JSON.parse(response.text);
     } catch (err) {
       logger.error(`Failed to parse Gemini JSON output (finishReason=${response.candidates?.[0]?.finishReason})`);
-      throw new AppError('Gemini returned an invalid structured JSON response.', 502, 'BAD_GATEWAY');
+      throw new AppError('The AI returned an invalid response. Please try again.', 502, 'BAD_GATEWAY');
     }
 
     return {
@@ -97,25 +97,29 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
         // use default message
       }
 
+      // Client-facing messages stay provider-neutral; the raw error is logged above
       if (err.status === 400) {
         if (message.includes('API key')) {
-          throw new AppError('Gemini Authentication failed: The configured API key is invalid.', 401, 'UNAUTHORIZED');
+          throw new AppError('The AI service is not configured correctly (invalid API key).', 401, 'UNAUTHORIZED');
         }
-        throw new AppError(`Invalid request payload: ${message}`, 400, 'BAD_REQUEST');
-      }
-      if (err.status === 403) {
-        throw new AppError('Access Denied: The model is not accessible or API usage is blocked.', 403, 'FORBIDDEN');
+        throw new AppError('The AI service could not process this request.', 400, 'BAD_REQUEST');
       }
       if (err.status === 429 || (err.status === 403 && message.includes('quota'))) {
-        throw new AppError('Gemini quota or rate limits exceeded. Please retry in a few seconds.', 429, 'TOO_MANY_REQUESTS');
+        throw new AppError('The AI service is receiving too many requests. Please retry in a few seconds.', 429, 'TOO_MANY_REQUESTS');
+      }
+      if (err.status === 403) {
+        throw new AppError('Access to the AI service is blocked. Please check the API configuration.', 403, 'FORBIDDEN');
       }
       if (err.status === 408) {
-        throw new AppError('Gemini request timed out. Please try again.', 504, 'GATEWAY_TIMEOUT');
+        throw new AppError('The AI service timed out. Please try again.', 504, 'GATEWAY_TIMEOUT');
       }
-      throw new AppError(`Gemini API Error: ${message}`, err.status || 502, 'BAD_GATEWAY');
+      if (err.status === 503) {
+        throw new AppError('The AI service is busy right now. Please try again in a few minutes.', 503, 'SERVICE_UNAVAILABLE');
+      }
+      throw new AppError('The AI service returned an error. Please try again.', err.status || 502, 'BAD_GATEWAY');
     }
 
-    throw new AppError(`Failed to reach Gemini: ${err.message}`, 502, 'BAD_GATEWAY');
+    throw new AppError('Could not reach the AI service. Please try again.', 502, 'BAD_GATEWAY');
   }
 };
 

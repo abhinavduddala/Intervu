@@ -238,7 +238,7 @@ const WorkspacePage = () => {
     }
   };
 
-  // Ask Gemini to review the code; uses real test results when a submission id is given
+  // Ask the AI to review the code; uses real test results when a submission id is given
   const handleAnalyze = async (submissionId = null, code = sourceCode, lang = language) => {
     if (!question || analyzing) return;
     if (!code.trim()) {
@@ -452,7 +452,7 @@ const WorkspacePage = () => {
             <div className="bg-white border border-[#E2E8F0] p-6 rounded-xl space-y-3">
               <div className="flex items-center gap-2 text-[#64748B]">
                 <Loader2 className="h-4 w-4 animate-spin text-[#4F46E5]" />
-                <span>Gemini is reviewing your solution and preparing the optimal approach...</span>
+                <span>AI is reviewing your solution and preparing the optimal approach...</span>
               </div>
               <div className="h-20 bg-[#F1F5F9] rounded w-full animate-pulse" />
             </div>

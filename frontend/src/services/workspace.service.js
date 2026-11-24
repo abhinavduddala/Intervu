@@ -4,7 +4,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const workspaceService = {
   getProblem: async (questionId, { refresh = false } = {}) => {
-    // First load generates the problem with Gemini, which can take a while
+    // First load generates the problem with AI, which can take a while
     const res = await api.get(`/workspace/questions/${questionId}/problem`, {
       params: refresh ? { refresh: 'true' } : undefined,
       timeout: 200000,

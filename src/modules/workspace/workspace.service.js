@@ -91,7 +91,7 @@ const generateProblemContent = async (question) => {
   });
   const content = sanitizeContent(result);
   if (!content.testCases.length) {
-    throw new Error('Gemini returned no usable test cases');
+    throw new Error('The AI returned no usable test cases. Please try again.');
   }
   const verified = await verifyTestCases(question.id, content.testCases, content.referenceSolution);
   // The first three verified tests are shown to the user; the rest are hidden
@@ -115,7 +115,7 @@ const loadProblemContent = async (questionId, { refresh = false } = {}) => {
   }
 
   if (!geminiProvider.isConfigured()) {
-    return { question, content: null, modelName: null, error: 'Gemini API key is not configured, so problem statements and test cases cannot be generated.' };
+    return { question, content: null, modelName: null, error: 'The AI service is not configured, so problem statements and test cases cannot be generated.' };
   }
 
   // Avoid duplicate Gemini calls when several requests arrive at once
@@ -139,7 +139,7 @@ const loadProblemContent = async (questionId, { refresh = false } = {}) => {
  * Public problem payload: hidden test cases are counted but never sent to the client.
  */
 const getProblem = async (questionId, options) => {
-  const { content, modelName, error } = await loadProblemContent(questionId, options);
+  const { content, error } = await loadProblemContent(questionId, options);
 
   if (!content) {
     return {
@@ -161,7 +161,6 @@ const getProblem = async (questionId, options) => {
 
   return {
     generated: true,
-    modelName,
     description: content.description,
     inputFormat: content.inputFormat,
     outputFormat: content.outputFormat,

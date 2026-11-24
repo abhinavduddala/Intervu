@@ -58,7 +58,7 @@ export const questionsService = {
     }
 
     const analysisId = analysis.id;
-    // Gemini 2.5 reviews (with optimal solution) usually take 10-60s; allow for retries
+    // AI reviews (with optimal solution) usually take 10-60s; allow for retries
     const maxAttempts = 120;
     const pollInterval = 2000;
 
