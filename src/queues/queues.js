@@ -25,7 +25,20 @@ const submissionQueue = new Queue('submissions', {
   },
 });
 
+const mockInterviewQueue = new Queue('mock-interview-evaluation', {
+  connection: redis,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 10000,
+    },
+    removeOnComplete: true,
+  },
+});
+
 module.exports = {
   aiAnalysisQueue,
   submissionQueue,
+  mockInterviewQueue,
 };

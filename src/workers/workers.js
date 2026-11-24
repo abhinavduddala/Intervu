@@ -166,6 +166,40 @@ const submissionWorker = new Worker(
   }
 );
 
+// 3. Mock Interview Evaluation Worker
+const mockInterviewService = require('../modules/mock-interview/interview.service');
+
+const mockInterviewWorker = new Worker(
+  'mock-interview-evaluation',
+  async (job) => {
+    const { interviewId } = job.data;
+    logger.info(`[Worker: MockInterview] Evaluating interview ${interviewId} (job ${job.id})`);
+    try {
+      await mockInterviewService.runEvaluation(interviewId);
+      return { success: true };
+    } catch (err) {
+      // An overloaded AI (503) is worth retrying here; a missing configuration is not
+      const retryable = isRetryable(err) || (err.statusCode === 503 && geminiProvider.isConfigured());
+      const finalErr = err instanceof UnrecoverableError || retryable ? err : new UnrecoverableError(err.message);
+      logger.error(`[Worker: MockInterview] Job ${job.id} attempt ${job.attemptsMade + 1} failed: ${err.message}`);
+      if (isFinalAttempt(job, finalErr)) {
+        await mockInterviewService.markEvaluationFailed(interviewId, err);
+      } else {
+        await mockInterviewService.markEvaluationRetrying(interviewId, err);
+      }
+      throw finalErr;
+    }
+  },
+  {
+    connection: redis,
+    concurrency: 3,
+  }
+);
+
+mockInterviewWorker.on('failed', (job, err) => {
+  logger.error(`[Worker: MockInterview] Job ${job?.id} failed: ${err.message}`);
+});
+
 aiWorker.on('failed', (job, err) => {
   logger.error(`[Worker: AI] Job ${job?.id} failed: ${err.message}`);
 });
@@ -177,4 +211,5 @@ submissionWorker.on('failed', (job, err) => {
 module.exports = {
   aiWorker,
   submissionWorker,
+  mockInterviewWorker,
 };

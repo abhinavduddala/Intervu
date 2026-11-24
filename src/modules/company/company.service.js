@@ -287,6 +287,7 @@ const getCompanyReadinessDetail = async (userId, companyName) => {
 };
 
 module.exports = {
+  getCompaniesList,
   getCompanyReadiness,
   getCompanyReadinessDetail,
 };

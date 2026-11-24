@@ -123,6 +123,28 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
   }
 };
 
+// Overload, rate-limit, timeout and bad-output errors are worth a short retry
+const TRANSIENT_STATUS = [429, 502, 503, 504];
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * generateStructured with retries and backoff for transient failures.
+ * @param {{ retries?: number, timeoutMs?: number, temperature?: number }} [options]
+ */
+const generateStructuredWithRetry = async (systemPrompt, userPrompt, schema, { retries = 2, ...options } = {}) => {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await generateStructured(systemPrompt, userPrompt, schema, options);
+    } catch (err) {
+      const transient = err instanceof AppError && TRANSIENT_STATUS.includes(err.statusCode);
+      if (!transient || attempt >= retries) throw err;
+      const delay = 1500 * 2 ** attempt + Math.floor(Math.random() * 500);
+      logger.warn(`AI request failed with ${err.statusCode}; retry ${attempt + 1}/${retries} in ${delay}ms`);
+      await sleep(delay);
+    }
+  }
+};
+
 /**
  * Code review using the analysis schema; clamps the confidence score.
  */
@@ -139,5 +161,6 @@ const getCodeReview = async (systemPrompt, userPrompt) => {
 module.exports = {
   isConfigured,
   generateStructured,
+  generateStructuredWithRetry,
   getCodeReview,
 };
