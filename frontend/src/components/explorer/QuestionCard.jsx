@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Star, Bookmark, Eye, Clock } from 'lucide-react';
+import { Star, Bookmark, Eye, Clock, Code2 } from 'lucide-react';
 import DifficultyBadge from './DifficultyBadge';
 import CompanyTag from './CompanyTag';
 import QuestionBadge from './QuestionBadge';
@@ -12,7 +12,8 @@ const QuestionCard = ({
   viewMode = 'list',
   onPreview,
   onFavorite,
-  onBookmark
+  onBookmark,
+  onOpenWorkspace
 }) => {
   const {
     id,
@@ -24,9 +25,6 @@ const QuestionCard = ({
     estimatedTime = 20,
     frequency = 'Medium',
     learningOrder = 1,
-    leetcodeUrl,
-    sourceUrl,
-    slug
   } = question;
 
   const handleFavoriteClick = (e) => {
@@ -39,8 +37,9 @@ const QuestionCard = ({
     onBookmark(id);
   };
 
-  const handleLeetCodeClick = (e) => {
+  const handleSolveClick = (e) => {
     e.stopPropagation();
+    if (onOpenWorkspace) onOpenWorkspace(id);
   };
 
   if (viewMode === 'grid') {
@@ -120,16 +119,14 @@ const QuestionCard = ({
             >
               <Eye className="h-3.5 w-3.5" />
             </button>
-            <a 
-              href={leetcodeUrl || sourceUrl || `https://leetcode.com/problems/${slug || 'two-sum'}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={handleLeetCodeClick}
-              className="p-1.5 text-[#4F46E5] hover:text-[#4338CA] hover:bg-indigo-50/50 rounded-lg transition-colors"
-              title="Open on LeetCode"
+            <button
+              onClick={handleSolveClick}
+              className="ml-1 px-3 py-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
+              title="Solve in the coding workspace"
             >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
+              <Code2 className="h-3.5 w-3.5" />
+              <span>Solve</span>
+            </button>
           </div>
         </div>
       </div>
@@ -204,16 +201,14 @@ const QuestionCard = ({
           >
             <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-current' : ''}`} />
           </button>
-          <a 
-            href={leetcodeUrl || sourceUrl || `https://leetcode.com/problems/${slug || 'two-sum'}/`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={handleLeetCodeClick}
-            className="p-2 text-[#4F46E5] hover:text-[#4338CA] hover:bg-indigo-50/50 rounded-lg transition-colors"
-            title="Open on LeetCode"
+          <button
+            onClick={handleSolveClick}
+            className="ml-1 px-3 py-1.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition-colors"
+            title="Solve in the coding workspace"
           >
-            <ExternalLink className="h-4 w-4" />
-          </a>
+            <Code2 className="h-3.5 w-3.5" />
+            <span>Solve</span>
+          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ExternalLink, PlayCircle, CheckCircle, Star, Info, Sparkles, BookOpen, Command, Compass, Play, BarChart2, CalendarRange } from 'lucide-react';
+import { X, Code2, CheckCircle, Star, Info, Sparkles, BookOpen, Command, Compass, Play, BarChart2, CalendarRange } from 'lucide-react';
 import DifficultyBadge from './DifficultyBadge';
 import CompanyTag from './CompanyTag';
 import QuestionBadge from './QuestionBadge';
@@ -12,6 +12,7 @@ const QuestionPreview = ({
   onStart,
   onSolve,
   onFavorite,
+  onOpenWorkspace,
   onQuickStartRandom // action callback for selecting a random question
 }) => {
   if (!question) {
@@ -111,8 +112,6 @@ const QuestionPreview = ({
     recommendedNext = [],
     acceptanceRate = 50,
     estimatedTime = 20,
-    leetcodeUrl,
-    sourceUrl,
   } = question;
 
   return (
@@ -154,7 +153,7 @@ const QuestionPreview = ({
               <span className="font-bold text-[#0F172A]">{estimatedTime} minutes</span>
             </div>
             <div className="flex justify-between">
-              <span>LeetCode Acceptance</span>
+              <span>Acceptance</span>
               <span className="font-bold text-[#0F172A]">{acceptanceRate}%</span>
             </div>
           </div>
@@ -215,26 +214,15 @@ const QuestionPreview = ({
 
       {/* Action Buttons Footer */}
       <div className="p-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex flex-col gap-2">
-        <a
-          href={leetcodeUrl || sourceUrl || `https://leetcode.com/problems/${slug || 'two-sum'}/`}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => (onOpenWorkspace ? onOpenWorkspace(id) : onStart(id))}
           className="w-full py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-sm select-none active:scale-[0.98]"
         >
-          <span>Open on LeetCode</span>
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+          <Code2 className="h-4 w-4" />
+          <span>{status === 'SOLVED' ? 'Solve Again in Workspace' : 'Solve in Workspace'}</span>
+        </button>
 
         <div className="grid grid-cols-2 gap-2">
-          {status !== 'IN_PROGRESS' && status !== 'SOLVED' && (
-            <button
-              onClick={() => onStart(id)}
-              className="py-2 bg-white hover:bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] text-xs font-semibold rounded-lg flex items-center justify-center gap-1 transition-colors select-none active:scale-[0.98]"
-            >
-              <PlayCircle className="h-4 w-4 text-[#4F46E5]" />
-              <span>Start</span>
-            </button>
-          )}
 
           {status !== 'SOLVED' && (
             <button

@@ -16,7 +16,7 @@ import {
 const faqItems = [
   {
     question: "How does Intervu integrate with LeetCode?",
-    answer: "Intervu is a placement preparation companion, not an online code editor. You solve coding challenges directly on LeetCode, then log your attempts on Intervu to receive detailed AI-powered reviews, track analytics, and queue spaced revisions."
+    answer: "Intervu is a placement preparation companion with a built-in code editor. You solve coding challenges right in Intervu in Python, Java, C, C++ and more, run them against test cases, and get detailed AI-powered reviews, analytics and spaced revisions."
   },
   {
     question: "What does the AI Code Review analyze?",
@@ -209,9 +209,9 @@ const LandingPage = () => {
               <div className="h-12 w-12 rounded-full bg-indigo-50 border-2 border-[#4F46E5] flex items-center justify-center text-sm font-bold text-[#4F46E5] mb-4">
                 2
               </div>
-              <h3 className="text-sm font-semibold text-[#0F172A] mb-2">Solve on LeetCode</h3>
+              <h3 className="text-sm font-semibold text-[#0F172A] mb-2">Solve in Intervu</h3>
               <p className="text-xs text-[#475569] max-w-[180px]">
-                Redirect to LeetCode and test your solution in real-world runtime conditions.
+                Write code in the built-in editor and run it against real test cases.
               </p>
             </div>
 

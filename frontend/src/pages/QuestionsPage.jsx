@@ -194,6 +194,25 @@ const QuestionsPage = () => {
     }
   };
 
+  // Open the in-app coding workspace, marking the question as started if it is new
+  const handleOpenWorkspace = async (qId) => {
+    if (getQuestionProgress(qId) === 'NOT_STARTED') {
+      try {
+        await questionsService.start(qId);
+      } catch (err) {
+        console.error('Failed to mark started:', err);
+      }
+    }
+    navigate(`/workspace/${qId}`);
+  };
+
+  const handleRandomPractice = () => {
+    const pool = questions.filter((q) => getQuestionProgress(q.id) !== 'SOLVED');
+    const list = pool.length ? pool : questions;
+    if (!list.length) return;
+    handleOpenWorkspace(list[Math.floor(Math.random() * list.length)].id);
+  };
+
   const handleSolve = async (qId) => {
     try {
       await questionsService.markSolved(qId);
@@ -320,11 +339,7 @@ const QuestionsPage = () => {
                   Reset Filters
                 </button>
                 <button
-                  onClick={() => {
-                    // Start a random question
-                    const randomId = Math.floor(Math.random() * 10) + 1;
-                    navigate(`/workspace/two-sum`);
-                  }}
+                  onClick={() => navigate('/workspace/1')}
                   className="h-10 px-4 bg-white hover:bg-[#F1F5F9] text-[#0F172A] border border-[#E2E8F0] text-xs font-bold rounded-lg transition-all active:scale-[0.98]"
                 >
                   Try Random Question
@@ -352,6 +367,7 @@ const QuestionsPage = () => {
                       onPreview={handlePreviewOpen}
                       onFavorite={handleFavorite}
                       onBookmark={handleBookmark}
+                      onOpenWorkspace={handleOpenWorkspace}
                     />
                   );
                 })}
@@ -377,6 +393,8 @@ const QuestionsPage = () => {
             onStart={handleStart}
             onSolve={handleSolve}
             onFavorite={handleFavorite}
+            onOpenWorkspace={handleOpenWorkspace}
+            onQuickStartRandom={handleRandomPractice}
           />
         </aside>
       </div>
@@ -426,6 +444,7 @@ const QuestionsPage = () => {
               onStart={handleStart}
               onSolve={handleSolve}
               onFavorite={handleFavorite}
+              onOpenWorkspace={handleOpenWorkspace}
             />
           </div>
         </div>

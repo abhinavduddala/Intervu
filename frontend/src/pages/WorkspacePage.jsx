@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   ChevronLeft,
-  ExternalLink,
   Video,
   Compass,
   Loader2,
@@ -333,7 +332,6 @@ const WorkspacePage = () => {
 
   const currentStatus = progress?.status || 'NOT_STARTED';
   const busy = running || analyzing;
-  const externalUrl = question.leetcodeUrl || question.sourceUrl;
 
   return (
     <div className="p-6 lg:p-8 max-w-[1500px] mx-auto flex flex-col gap-6 pb-24 text-xs font-semibold text-[#0F172A]">
@@ -370,11 +368,6 @@ const WorkspacePage = () => {
           <HintCard key={question.id} hint={question.hint} onRequestHint={handleRequestHint} />
 
           <div className="grid grid-cols-3 gap-3">
-            {externalUrl && (
-              <a href={externalUrl} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 p-2.5 bg-white hover:bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#475569]">
-                <ExternalLink className="h-3.5 w-3.5" /> Original
-              </a>
-            )}
             {question.videoSolutionUrl && (
               <a href={question.videoSolutionUrl} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-1.5 p-2.5 bg-white hover:bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg text-[#475569]">
                 <Video className="h-3.5 w-3.5 text-[#EF4444]" /> Video

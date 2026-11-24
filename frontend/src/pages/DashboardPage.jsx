@@ -146,7 +146,7 @@ const DashboardPage = () => {
         </div>
         <h1 className="text-3xl font-extrabold text-[#0F172A] tracking-tight mb-2">Welcome to Intervu, {displayName}</h1>
         <p className="text-sm text-[#64748B] max-w-md mb-8 leading-relaxed">
-          Your AI-powered coding interview companion. Solve questions on LeetCode and paste your solutions to trigger complexity audits and revision planning.
+          Your AI-powered coding interview companion. Solve questions in the built-in code editor, run them against test cases, and get AI reviews and revision planning.
         </p>
         <Link
           to="/questions"

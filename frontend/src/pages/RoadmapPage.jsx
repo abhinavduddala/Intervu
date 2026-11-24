@@ -188,19 +188,6 @@ const RoadmapPage = () => {
               <span className="bg-white border border-[#E2E8F0] px-2 py-0.5 rounded text-[#0F172A]">{currentQuestion.topic}</span>
               <span>•</span>
               <DifficultyBadge difficulty={currentQuestion.difficulty} />
-              {currentQuestion.leetcodeUrl && (
-                <>
-                  <span>•</span>
-                  <a 
-                    href={currentQuestion.leetcodeUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="hover:text-[#4F46E5] underline flex items-center gap-0.5"
-                  >
-                    View on LeetCode
-                  </a>
-                </>
-              )}
             </div>
           </div>
 

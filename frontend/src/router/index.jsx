@@ -18,7 +18,6 @@ import RegisterPage from '../pages/RegisterPage';
 import ForgotPasswordPage from '../pages/ForgotPasswordPage';
 import DashboardPage from '../pages/DashboardPage';
 import QuestionsPage from '../pages/QuestionsPage';
-import QuestionDetailPage from '../pages/QuestionDetailPage';
 import WorkspacePage from '../pages/WorkspacePage';
 import AnalyticsPage from '../pages/AnalyticsPage';
 import CompanyPage from '../pages/CompanyPage';
@@ -82,7 +81,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'questions/:slugOrId',
-        element: <QuestionDetailPage />,
+        element: <WorkspacePage />,
       },
       {
         path: 'workspace/:slugOrId',
