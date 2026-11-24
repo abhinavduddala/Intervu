@@ -46,6 +46,7 @@ const formatQuestion = (row) => ({
   articleUrl: row.article_url,
   companyTags: row.company_tags,
   estimatedTime: row.estimated_time,
+  hint: row.hint,
 });
 
 const listQuestions = async (filters) => {

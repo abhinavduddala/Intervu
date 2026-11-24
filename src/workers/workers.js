@@ -1,6 +1,7 @@
-const { Worker } = require('bullmq');
+const { Worker, UnrecoverableError } = require('bullmq');
 const { redis } = require('../config/redis');
 const logger = require('../utils/logger');
+const { AppError } = require('../errors/AppError');
 const aiRepository = require('../modules/ai/ai.repository');
 const aiPrompt = require('../modules/ai/ai.prompt');
 const geminiProvider = require('../modules/ai/providers/gemini.provider');
@@ -9,40 +10,54 @@ const questionsService = require('../modules/questions/questions.service');
 const companyService = require('../modules/company/company.service');
 const submissionsRepository = require('../modules/submissions/submissions.repository');
 const judge0Service = require('../modules/submissions/judge0.service');
+const workspaceService = require('../modules/workspace/workspace.service');
 
 logger.info('🚀 Initializing background BullMQ workers...');
+
+// Configuration and auth problems will not fix themselves on retry
+const isRetryable = (err) => {
+  if (!(err instanceof AppError)) return true;
+  return err.statusCode === 429 || (err.statusCode >= 500 && err.statusCode !== 503);
+};
+
+const isFinalAttempt = (job, err) =>
+  err instanceof UnrecoverableError || job.attemptsMade + 1 >= (job.opts.attempts || 1);
 
 // 1. AI Analysis Worker
 const aiWorker = new Worker(
   'ai-analysis',
   async (job) => {
-    const { userId, questionId, sourceCode, language, analysisId } = job.data;
+    const { userId, questionId, sourceCode, language, analysisId, submissionId } = job.data;
     logger.info(`[Worker: AI] Processing job ${job.id} for analysisId ${analysisId}`);
 
     try {
-      // Update status to processing
       await aiRepository.updateStatus(analysisId, 'processing');
 
-      // Fetch question context
       const question = await questionsRepository.findById(questionId);
       if (!question) {
-        throw new Error('Question not found');
+        throw new UnrecoverableError('Question not found');
       }
 
-      // Generate prompt and call Gemini API
+      // Real execution results and the problem statement make the review far more accurate
+      const [execution, problem] = await Promise.all([
+        workspaceService.getExecutionSummary(submissionId, userId).catch(() => null),
+        workspaceService.loadProblemContent(questionId).catch(() => ({ content: null })),
+      ]);
+
       const { systemPrompt, userPrompt } = aiPrompt.generateComplexityPrompt({
         questionTitle: question.title,
         questionTopic: question.topic_name,
         questionPattern: question.pattern_name,
         questionDifficulty: question.difficulty,
         questionHint: question.hint,
+        problemDescription: problem?.content?.description,
+        execution,
         sourceCode,
         languageName: language,
       });
 
       const { result, modelUsed } = await geminiProvider.getCodeReview(systemPrompt, userPrompt);
 
-      // Save structured review to PostgreSQL and set completed
       await aiRepository.updateAnalysis(analysisId, {
         analysisResult: result,
         modelName: modelUsed,
@@ -50,14 +65,17 @@ const aiWorker = new Worker(
         status: 'completed',
       });
 
-      // Auto-mark question as solved
-      try {
-        await questionsService.markQuestionSolved(userId, questionId, null);
-      } catch (err) {
-        logger.error(`[Worker: AI] Failed to auto-mark question as solved: ${err.message}`);
+      // Count the question as solved when tests passed, or (without tests) when the review judges it correct
+      const solved = execution ? execution.verdict === 'Accepted' : result?.correctnessAssessment?.status === 'likely_correct';
+      if (solved) {
+        try {
+          await questionsService.markQuestionSolved(userId, questionId, null);
+        } catch (err) {
+          logger.error(`[Worker: AI] Failed to auto-mark question as solved: ${err.message}`);
+        }
       }
 
-      // Update company readiness
+      // Recalculate and cache company readiness (includes the new AI rating)
       try {
         await companyService.getCompanyReadiness(userId);
       } catch (err) {
@@ -67,9 +85,14 @@ const aiWorker = new Worker(
       logger.info(`[Worker: AI] Job ${job.id} completed successfully for analysisId ${analysisId}`);
       return { success: true };
     } catch (err) {
-      logger.error(`[Worker: AI] Job ${job.id} failed: ${err.message}`);
-      await aiRepository.updateStatus(analysisId, 'failed');
-      throw err;
+      const finalErr = err instanceof UnrecoverableError || isRetryable(err) ? err : new UnrecoverableError(err.message);
+      logger.error(`[Worker: AI] Job ${job.id} attempt ${job.attemptsMade + 1} failed: ${err.message}`);
+      if (isFinalAttempt(job, finalErr)) {
+        await aiRepository.updateStatus(analysisId, 'failed', err.message);
+      } else {
+        await aiRepository.updateStatus(analysisId, 'pending', `Retrying: ${err.message}`);
+      }
+      throw finalErr;
     }
   },
   {
@@ -86,7 +109,14 @@ const submissionWorker = new Worker(
     logger.info(`[Worker: Submissions] Processing job ${job.id} for submissionId ${submissionId}`);
 
     try {
-      // Submit code to Judge0
+      // Workspace submissions: run the full test-case suite
+      if (job.data.mode === 'suite') {
+        const evaluation = await workspaceService.executeSuiteSubmission(job.data);
+        logger.info(`[Worker: Submissions] Suite ${submissionId}: ${evaluation.verdict} (${evaluation.passed}/${evaluation.total})`);
+        return { success: true };
+      }
+
+      // Legacy single-run submissions
       const { token } = await judge0Service.submitCode({
         sourceCode,
         languageId,
@@ -94,13 +124,10 @@ const submissionWorker = new Worker(
         expectedOutput,
       });
 
-      // Update database with judge0 token
       await submissionsRepository.updateToken(submissionId, token);
 
-      // Poll Judge0 for result
       const judge0Result = await judge0Service.pollSubmission(token);
 
-      // Save final execution results
       await submissionsRepository.update(submissionId, {
         statusId: judge0Result.statusId,
         statusDescription: judge0Result.statusDescription,
@@ -111,7 +138,6 @@ const submissionWorker = new Worker(
         executionMemory: judge0Result.executionMemory,
       });
 
-      // Trigger revision check if statusId = 3 (Accepted)
       if (judge0Result.statusId === 3) {
         try {
           const revisionService = require('../modules/revision/revision.service');
@@ -124,12 +150,13 @@ const submissionWorker = new Worker(
       logger.info(`[Worker: Submissions] Job ${job.id} completed successfully for submissionId ${submissionId}`);
       return { success: true };
     } catch (err) {
-      logger.error(`[Worker: Submissions] Job ${job.id} failed: ${err.message}`);
-      // Update status to failed
-      await submissionsRepository.update(submissionId, {
-        statusId: 4, // Fatal Error
-        statusDescription: `Worker execution failed: ${err.message}`,
-      });
+      logger.error(`[Worker: Submissions] Job ${job.id} attempt ${job.attemptsMade + 1} failed: ${err.message}`);
+      if (isFinalAttempt(job, err)) {
+        await submissionsRepository.update(submissionId, {
+          statusId: 13, // Internal Error
+          statusDescription: `Execution failed: ${err.message}`.slice(0, 100),
+        });
+      }
       throw err;
     }
   },
@@ -140,11 +167,11 @@ const submissionWorker = new Worker(
 );
 
 aiWorker.on('failed', (job, err) => {
-  logger.error(`[Worker: AI] Job ${job?.id} failed globally:`, err);
+  logger.error(`[Worker: AI] Job ${job?.id} failed: ${err.message}`);
 });
 
 submissionWorker.on('failed', (job, err) => {
-  logger.error(`[Worker: Submissions] Job ${job?.id} failed globally:`, err);
+  logger.error(`[Worker: Submissions] Job ${job?.id} failed: ${err.message}`);
 });
 
 module.exports = {

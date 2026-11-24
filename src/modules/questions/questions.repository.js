@@ -15,6 +15,7 @@ const QUESTION_SELECT = `
   q.article_url,
   q.company_tags,
   q.estimated_time,
+  q.hint,
   t.id   AS topic_id,
   t.name AS topic_name,
   p.id   AS pattern_id,
@@ -305,15 +306,16 @@ const upsertProgress = async (userId, questionId, data) => {
     `INSERT INTO user_question_progress (
        user_id, question_id, status, started_at, completed_at, leetcode_submission_url, notes, favorite, revision_count, last_revised_at
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     -- NOT NULL columns fall back to their defaults on insert; updates keep existing values when a param is null
+     VALUES ($1, $2, COALESCE($3, 'NOT_STARTED'), $4, $5, $6, $7, COALESCE($8, FALSE), COALESCE($9, 0), $10)
      ON CONFLICT (user_id, question_id) DO UPDATE SET
-       status = COALESCE(EXCLUDED.status, user_question_progress.status),
+       status = COALESCE($3, user_question_progress.status),
        started_at = COALESCE(EXCLUDED.started_at, user_question_progress.started_at),
        completed_at = COALESCE(EXCLUDED.completed_at, user_question_progress.completed_at),
        leetcode_submission_url = COALESCE(EXCLUDED.leetcode_submission_url, user_question_progress.leetcode_submission_url),
        notes = COALESCE(EXCLUDED.notes, user_question_progress.notes),
-       favorite = COALESCE(EXCLUDED.favorite, user_question_progress.favorite),
-       revision_count = COALESCE(EXCLUDED.revision_count, user_question_progress.revision_count),
+       favorite = COALESCE($8, user_question_progress.favorite),
+       revision_count = COALESCE($9, user_question_progress.revision_count),
        last_revised_at = COALESCE(EXCLUDED.last_revised_at, user_question_progress.last_revised_at)
      RETURNING id, user_id, question_id, status, started_at, completed_at, leetcode_submission_url, notes, favorite, revision_count, last_revised_at`,
     [

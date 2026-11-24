@@ -18,22 +18,27 @@ const getGeminiClient = () => {
   return genaiClient;
 };
 
+const isConfigured = () =>
+  Boolean(env.GEMINI_API_KEY) && !['your_gemini_api_key', 'your_gemini_api_key_here'].includes(env.GEMINI_API_KEY);
+
 /**
- * Sends a code review completion request using Google Gemini generateContent with JSON response schema.
+ * Sends a structured generation request to Gemini and returns the parsed JSON.
  * @param {string} systemPrompt
  * @param {string} userPrompt
- * @returns {Promise<object>} The parsed structured response.
+ * @param {object} schema JSON schema for the response.
+ * @param {{ timeoutMs?: number, temperature?: number }} [options]
+ * @returns {Promise<{ result: object, modelUsed: string }>}
  */
-const getCodeReview = async (systemPrompt, userPrompt) => {
-  const client = getGeminiClient();
-
-  if (!env.GEMINI_API_KEY || env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs = 120000, temperature } = {}) => {
+  if (!isConfigured()) {
     throw new AppError(
       'Gemini API key is not configured. Please set a valid GEMINI_API_KEY in the environment settings.',
       503,
       'SERVICE_UNAVAILABLE'
     );
   }
+
+  const client = getGeminiClient();
 
   try {
     const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
@@ -45,7 +50,9 @@ const getCodeReview = async (systemPrompt, userPrompt) => {
       config: {
         systemInstruction: systemPrompt,
         responseMimeType: 'application/json',
-        responseSchema: analyzeResponseSchema,
+        responseSchema: schema,
+        ...(temperature !== undefined ? { temperature } : {}),
+        httpOptions: { timeout: timeoutMs },
       }
     });
 
@@ -62,17 +69,8 @@ const getCodeReview = async (systemPrompt, userPrompt) => {
     try {
       parsedResult = JSON.parse(response.text);
     } catch (err) {
-      logger.error('Failed to parse Gemini JSON output:', response.text);
+      logger.error(`Failed to parse Gemini JSON output (finishReason=${response.candidates?.[0]?.finishReason})`);
       throw new AppError('Gemini returned an invalid structured JSON response.', 502, 'BAD_GATEWAY');
-    }
-
-    // Validate confidence score range
-    if (typeof parsedResult.confidenceScore === 'number') {
-      if (parsedResult.confidenceScore < 0 || parsedResult.confidenceScore > 100) {
-        parsedResult.confidenceScore = Math.max(0, Math.min(100, parsedResult.confidenceScore));
-      }
-    } else {
-      parsedResult.confidenceScore = 80; // default
     }
 
     return {
@@ -80,7 +78,7 @@ const getCodeReview = async (systemPrompt, userPrompt) => {
       modelUsed: model,
     };
   } catch (err) {
-    logger.error('Error during Gemini API content generation:', err);
+    logger.error(`Error during Gemini API content generation: ${err.message}`);
 
     // If it's already an AppError, rethrow it
     if (err instanceof AppError) {
@@ -117,10 +115,25 @@ const getCodeReview = async (systemPrompt, userPrompt) => {
       throw new AppError(`Gemini API Error: ${message}`, err.status || 502, 'BAD_GATEWAY');
     }
 
-    throw new AppError(`Failed to retrieve Gemini code review: ${err.message}`, 502, 'BAD_GATEWAY');
+    throw new AppError(`Failed to reach Gemini: ${err.message}`, 502, 'BAD_GATEWAY');
   }
 };
 
+/**
+ * Code review using the analysis schema; clamps the confidence score.
+ */
+const getCodeReview = async (systemPrompt, userPrompt) => {
+  const { result, modelUsed } = await generateStructured(systemPrompt, userPrompt, analyzeResponseSchema);
+  if (typeof result.confidenceScore === 'number') {
+    result.confidenceScore = Math.max(0, Math.min(100, Math.round(result.confidenceScore)));
+  } else {
+    result.confidenceScore = 70;
+  }
+  return { result, modelUsed };
+};
+
 module.exports = {
+  isConfigured,
+  generateStructured,
   getCodeReview,
 };

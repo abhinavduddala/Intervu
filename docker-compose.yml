@@ -34,6 +34,8 @@ services:
       - CLIENT_URL=http://localhost:5173
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=gemini-2.5-flash
+      - JUDGE0_API_URL=${JUDGE0_API_URL:-https://ce.judge0.com}
+      - JUDGE0_API_KEY=${JUDGE0_API_KEY:-}
     depends_on:
       - postgres
       - redis

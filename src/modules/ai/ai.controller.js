@@ -2,12 +2,13 @@ const aiService = require('./ai.service');
 
 const analyzeSolution = async (req, res, next) => {
   try {
-    const { questionId, language, code } = req.body;
+    const { questionId, language, code, submissionId } = req.body;
     const userId = req.user.id;
 
-    const result = await aiService.analyzePastedSolution(userId, questionId, { 
-      sourceCode: code, 
-      language 
+    const result = await aiService.analyzePastedSolution(userId, questionId, {
+      sourceCode: code,
+      language,
+      submissionId,
     });
 
     res.status(200).json({
@@ -87,8 +88,18 @@ const pasteSolution = async (req, res, next) => {
   }
 };
 
+const getHint = async (req, res, next) => {
+  try {
+    const hint = await aiService.getHint(req.user.id, req.body);
+    res.status(200).json({ success: true, data: { hint } });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   analyzeSolution,
+  getHint,
   getAnalysisDetails,
   getUserHistory,
   getQuestionHistory,

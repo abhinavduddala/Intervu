@@ -19,6 +19,11 @@ export const questionsService = {
     return res.data.data.question;
   },
 
+  getBySlug: async (slug) => {
+    const res = await api.get(`/questions/slug/${encodeURIComponent(slug)}`);
+    return res.data.data.question;
+  },
+
   start: async (id) => {
     const res = await api.post(`/questions/${id}/start`);
     return res.data.data.progress;
@@ -39,21 +44,23 @@ export const questionsService = {
     return res.data.data.progress;
   },
 
-  pasteSolution: async (id, { sourceCode, language }) => {
+  pasteSolution: async (id, { sourceCode, language, submissionId = null }) => {
     const res = await api.post('/ai/analyze', {
       questionId: id,
       language,
-      code: sourceCode
+      code: sourceCode,
+      ...(submissionId ? { submissionId } : {}),
     });
-    
+
     const analysis = res.data.data.analysis;
     if (analysis && analysis.status === 'completed') {
       return { analysis };
     }
 
     const analysisId = analysis.id;
-    const maxAttempts = 25;
-    const pollInterval = 1500;
+    // Gemini 2.5 reviews (with optimal solution) usually take 10-60s; allow for retries
+    const maxAttempts = 120;
+    const pollInterval = 2000;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       await new Promise(resolve => setTimeout(resolve, pollInterval));
@@ -66,7 +73,7 @@ export const questionsService = {
       }
       
       if (updatedAnalysis && updatedAnalysis.status === 'failed') {
-        throw new Error('AI Complexity Review failed on background server. Verify code syntax.');
+        throw new Error(`AI review failed: ${updatedAnalysis.errorMessage || 'unknown error on the analysis worker.'}`);
       }
     }
 

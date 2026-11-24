@@ -1,5 +1,5 @@
 const logger = require('../../utils/logger');
-const { NotFoundError } = require('../../errors/AppError');
+const { NotFoundError, ForbiddenError } = require('../../errors/AppError');
 const submissionsRepository = require('./submissions.repository');
 const judge0Service = require('./judge0.service');
 const questionsRepository = require('../questions/questions.repository');
@@ -23,7 +23,21 @@ const formatSubmission = (row) => ({
   executionMemory: row.execution_memory,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  language: row.language || null,
+  passedCount: row.passed_count ?? null,
+  totalCount: row.total_count ?? null,
+  // Only per-case results go to the client; `failures` holds hidden test inputs
+  testResults: (() => {
+    const tr = typeof row.test_results === 'string' ? JSON.parse(row.test_results) : row.test_results;
+    return tr?.cases || null;
+  })(),
 });
+
+const assertOwner = (submission, userId) => {
+  if (userId && submission.user_id !== userId) {
+    throw new ForbiddenError('You are not authorized to access this submission');
+  }
+};
 
 const createSubmission = async ({
   userId,
@@ -69,19 +83,21 @@ const createSubmission = async ({
   return formatSubmission(submission);
 };
 
-const getSubmissionDetails = async (id) => {
+const getSubmissionDetails = async (id, userId) => {
   const submission = await submissionsRepository.findById(id);
   if (!submission) {
     throw new NotFoundError('Submission not found');
   }
+  assertOwner(submission, userId);
   return formatSubmission(submission);
 };
 
-const getSubmissionStatus = async (id) => {
+const getSubmissionStatus = async (id, userId) => {
   const submission = await submissionsRepository.findById(id);
   if (!submission) {
     throw new NotFoundError('Submission not found');
   }
+  assertOwner(submission, userId);
 
   // The background worker polls Judge0 and updates PostgreSQL directly.
   // We simply read and return the latest state from the database.

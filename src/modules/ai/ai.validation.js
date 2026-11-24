@@ -1,5 +1,11 @@
 const { z } = require('zod');
 const { ValidationError } = require('../../errors/AppError');
+const { LANGUAGE_KEYS } = require('../workspace/languages');
+
+const languageField = z.string().trim().toLowerCase().refine(
+  (val) => LANGUAGE_KEYS.includes(val),
+  { message: `Programming language must be one of: ${LANGUAGE_KEYS.join(', ')}` }
+);
 
 const validate = (schema) => (req, res, next) => {
   const result = schema.safeParse({
@@ -26,13 +32,21 @@ const validate = (schema) => (req, res, next) => {
 const analyzePastedSchema = z.object({
   body: z.object({
     questionId: z.coerce.number().int().positive('Question ID must be a positive integer'),
-    language: z.string().trim().toLowerCase().refine(
-      (val) => ['java', 'python', 'cpp', 'javascript', 'go', 'csharp'].includes(val),
-      { message: 'Programming language must be one of: java, python, cpp, javascript, go, csharp' }
-    ),
+    language: languageField,
     code: z.string().trim()
       .min(1, 'Solution code cannot be empty')
       .max(50000, 'Code length exceeds maximum allowed review size (50,000 characters)'),
+    submissionId: z.coerce.number().int().positive().optional().nullable(),
+  }),
+});
+
+const hintSchema = z.object({
+  body: z.object({
+    questionId: z.coerce.number().int().positive('Question ID must be a positive integer'),
+    language: languageField.optional().default('python'),
+    code: z.string().max(50000).optional().default(''),
+    level: z.coerce.number().int().min(1).max(3).default(1),
+    previousHints: z.array(z.string().max(2000)).max(5).optional().default([]),
   }),
 });
 
@@ -51,6 +65,7 @@ const idParamSchema = z.object({
 module.exports = {
   validate,
   analyzePastedSchema,
+  hintSchema,
   questionIdParamSchema,
   idParamSchema,
 };

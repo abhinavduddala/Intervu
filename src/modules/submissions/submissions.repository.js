@@ -18,6 +18,10 @@ const SUBMISSION_SELECT = `
   s.execution_memory,
   s.created_at,
   s.updated_at,
+  s.language,
+  s.test_results,
+  s.passed_count,
+  s.total_count,
   q.title AS question_title
 `;
 
@@ -34,6 +38,7 @@ const create = async ({
   stdin,
   expectedOutput,
   judge0Token,
+  language = null,
 }) => {
   const result = await db.query(
     `INSERT INTO submissions (
@@ -45,9 +50,10 @@ const create = async ({
       expected_output,
       judge0_token,
       status_id,
-      status_description
+      status_description,
+      language
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING id`,
     [
       userId,
@@ -59,6 +65,7 @@ const create = async ({
       judge0Token,
       1, // Status ID 1 (In Queue)
       'In Queue',
+      language,
     ]
   );
   
@@ -88,7 +95,11 @@ const update = async (id, updates) => {
     'compile_output',
     'execution_time',
     'execution_memory',
+    'test_results',
+    'passed_count',
+    'total_count',
   ];
+  const jsonFields = ['test_results'];
 
   allowedFields.forEach((field) => {
     // Convert camelCase parameters to snake_case table columns
@@ -97,7 +108,8 @@ const update = async (id, updates) => {
     
     if (val !== undefined) {
       fields.push(`${field} = $${paramIndex++}`);
-      values.push(val);
+      // Serialize explicitly: pg would turn JS arrays into Postgres array literals
+      values.push(jsonFields.includes(field) && val !== null ? JSON.stringify(val) : val);
     }
   });
 

@@ -18,9 +18,12 @@ const getOverallMetrics = async (userId) => {
 
 const getAverageAIRating = async (userId) => {
   const result = await db.query(
-    `SELECT COALESCE(AVG((interview_feedback->>'rating')::NUMERIC), 0)::NUMERIC AS avg_ai_rating
-     FROM ai_analysis
-     WHERE user_id = $1`,
+    // Gemini reviews are stored in ai_analyses (0-100 confidence score); scale to the 0-10 rating used by readiness.
+    `SELECT COALESCE(AVG((analysis_result->>'confidenceScore')::NUMERIC / 10), 0)::NUMERIC AS avg_ai_rating
+     FROM ai_analyses
+     WHERE user_id = $1
+       AND status = 'completed'
+       AND analysis_result ? 'confidenceScore'`,
     [userId]
   );
   return parseFloat(result.rows[0].avg_ai_rating);

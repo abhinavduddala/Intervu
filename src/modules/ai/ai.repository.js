@@ -9,6 +9,7 @@ const create = async ({
   modelName = null,
   provider = null,
   status = 'pending',
+  submissionId = null,
 }) => {
   const result = await db.query(
     `INSERT INTO ai_analyses (
@@ -19,10 +20,11 @@ const create = async ({
       analysis_result,
       model_name,
       provider,
-      status
+      status,
+      submission_id
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-     RETURNING id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, created_at`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+     RETURNING id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, error_message, submission_id, created_at`,
     [
       userId,
       questionId,
@@ -32,6 +34,7 @@ const create = async ({
       modelName,
       provider,
       status,
+      submissionId,
     ]
   );
   return result.rows[0];
@@ -39,7 +42,7 @@ const create = async ({
 
 const findById = async (id) => {
   const result = await db.query(
-    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, created_at
+    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, error_message, submission_id, created_at
      FROM ai_analyses
      WHERE id = $1`,
     [id]
@@ -49,7 +52,7 @@ const findById = async (id) => {
 
 const findByUserId = async (userId) => {
   const result = await db.query(
-    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, created_at
+    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, error_message, submission_id, created_at
      FROM ai_analyses
      WHERE user_id = $1
      ORDER BY created_at DESC`,
@@ -60,7 +63,7 @@ const findByUserId = async (userId) => {
 
 const findByQuestionId = async (userId, questionId) => {
   const result = await db.query(
-    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, created_at
+    `SELECT id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, error_message, submission_id, created_at
      FROM ai_analyses
      WHERE user_id = $1 AND question_id = $2
      ORDER BY created_at DESC`,
@@ -79,13 +82,14 @@ const findBySubmissionId = async (submissionId) => {
   return result.rows[0] || null;
 };
 
-const updateStatus = async (id, status) => {
+const updateStatus = async (id, status, errorMessage = null) => {
   const result = await db.query(
     `UPDATE ai_analyses
-     SET status = $2
+     SET status = $2,
+         error_message = $3
      WHERE id = $1
      RETURNING id, status`,
-    [id, status]
+    [id, status, errorMessage]
   );
   return result.rows[0];
 };
@@ -96,9 +100,10 @@ const updateAnalysis = async (id, { analysisResult, modelName, provider, status 
      SET analysis_result = $2,
          model_name = $3,
          provider = $4,
-         status = $5
+         status = $5,
+         error_message = NULL
      WHERE id = $1
-     RETURNING id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, created_at`,
+     RETURNING id, user_id, question_id, language, submitted_code, analysis_result, model_name, provider, status, error_message, submission_id, created_at`,
     [
       id,
       analysisResult ? (typeof analysisResult === 'string' ? analysisResult : JSON.stringify(analysisResult)) : null,

@@ -61,6 +61,7 @@ app.use('/api/v1/recommendations', recommendationsRoutes);
 app.use('/api/v1/revision', revisionRoutes);
 app.use('/api/v1/admin/import', importRoutes);
 app.use('/api/v1/roadmap', roadmapRoutes);
+app.use('/api/v1/workspace', require('./modules/workspace/workspace.routes'));
 
 // Base Health Check endpoint
 app.get('/health', async (req, res, next) => {

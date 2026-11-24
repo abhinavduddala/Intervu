@@ -114,7 +114,7 @@ const getSubmission = async (token) => {
   }
 };
 
-const pollSubmission = async (token, maxAttempts = 5, interval = 1000) => {
+const pollSubmission = async (token, maxAttempts = 20, interval = 1000) => {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const result = await getSubmission(token);
     // statusId < 3 represents queueing or processing states (1 = In Queue, 2 = Processing)
@@ -128,8 +128,80 @@ const pollSubmission = async (token, maxAttempts = 5, interval = 1000) => {
   return getSubmission(token);
 };
 
+const RESULT_FIELDS = 'token,stdout,stderr,compile_output,message,status,time,memory';
+const MAX_BATCH_SIZE = 20; // Judge0 default max_batch_size
+
+const formatResult = (data) => ({
+  token: data.token,
+  statusId: data.status?.id || null,
+  statusDescription: data.status?.description || null,
+  stdout: decodeBase64(data.stdout),
+  stderr: decodeBase64(data.stderr),
+  compileOutput: decodeBase64(data.compile_output),
+  message: decodeBase64(data.message),
+  executionTime: data.time ? parseFloat(data.time) : null,
+  executionMemory: data.memory ? parseInt(data.memory, 10) : null,
+});
+
+/**
+ * Run several programs (one per test case) through Judge0's batch API and wait
+ * for all of them to finish.
+ * @param {Array<{sourceCode: string, languageId: number, stdin?: string}>} runs
+ * @returns {Promise<Array<object>>} Results in the same order as `runs`.
+ */
+const runBatch = async (runs, { maxAttempts = 30, interval = 1000 } = {}) => {
+  if (!runs.length) return [];
+  try {
+    const results = [];
+    for (let offset = 0; offset < runs.length; offset += MAX_BATCH_SIZE) {
+      const chunk = runs.slice(offset, offset + MAX_BATCH_SIZE);
+      const createRes = await fetchWithRetry(`${env.JUDGE0_API_URL}/submissions/batch?base64_encoded=true`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          submissions: chunk.map((r) => ({
+            source_code: encodeBase64(r.sourceCode),
+            language_id: r.languageId,
+            stdin: encodeBase64(r.stdin ?? ''),
+          })),
+        }),
+      });
+      const created = await createRes.json();
+      const tokens = created.map((c) => c.token);
+      if (tokens.some((t) => !t)) {
+        throw new Error(`Judge0 rejected a batch item: ${JSON.stringify(created)}`);
+      }
+
+      let finished = null;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        await new Promise((resolve) => setTimeout(resolve, interval));
+        const pollRes = await fetchWithRetry(
+          `${env.JUDGE0_API_URL}/submissions/batch?tokens=${tokens.join(',')}&base64_encoded=true&fields=${RESULT_FIELDS}`,
+          { method: 'GET', headers: getHeaders() }
+        );
+        const body = await pollRes.json();
+        const subs = body.submissions || [];
+        if (subs.length === tokens.length && subs.every((x) => x.status && x.status.id >= 3)) {
+          finished = subs;
+          break;
+        }
+      }
+      if (!finished) {
+        throw new Error('Timed out waiting for Judge0 to finish executing the code');
+      }
+      results.push(...finished.map(formatResult));
+    }
+    return results;
+  } catch (err) {
+    logger.error('Error in Judge0 runBatch:', err);
+    if (err instanceof AppError) throw err;
+    throw new AppError(`Code execution failed: ${err.message}`, 502, 'BAD_GATEWAY');
+  }
+};
+
 module.exports = {
   submitCode,
   getSubmission,
   pollSubmission,
+  runBatch,
 };

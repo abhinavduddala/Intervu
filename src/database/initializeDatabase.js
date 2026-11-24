@@ -108,28 +108,36 @@ const initializeDatabase = async () => {
       }
     }
 
-    // 3. Truncate lookup tables to avoid ID/name key conflicts
-    console.log('🔄 Truncating topics, patterns, and questions tables...');
-    await client.query('TRUNCATE TABLE questions, topics, patterns RESTART IDENTITY CASCADE;');
+    // 3. Seed lookup tables only on first boot. Truncating on every start
+    //    cascaded into submissions, ai_analyses and user progress and wiped
+    //    all user data (AI history, readiness) on each restart.
+    const { rows: [{ count: existingQuestions }] } = await client.query('SELECT COUNT(*)::INTEGER AS count FROM questions');
+    if (existingQuestions === 0) {
+      console.log('🔄 Empty database detected. Resetting topics and patterns lookup tables...');
+      await client.query('TRUNCATE TABLE questions, topics, patterns RESTART IDENTITY CASCADE;');
 
-    // 4. Seed topics
-    console.log('🌱 Seeding topics lookup data...');
-    for (const t of topics) {
-      await client.query(`
-        INSERT INTO topics (id, name)
-        VALUES ($1, $2)
-        ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
-      `, [t.id, t.name]);
-    }
+      console.log('🌱 Seeding topics lookup data...');
+      for (const t of topics) {
+        await client.query(`
+          INSERT INTO topics (id, name)
+          VALUES ($1, $2)
+          ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
+        `, [t.id, t.name]);
+      }
 
-    // 4. Seed patterns
-    console.log('🌱 Seeding patterns lookup data...');
-    for (const p of patterns) {
-      await client.query(`
-        INSERT INTO patterns (id, name)
-        VALUES ($1, $2)
-        ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
-      `, [p.id, p.name]);
+      console.log('🌱 Seeding patterns lookup data...');
+      for (const p of patterns) {
+        await client.query(`
+          INSERT INTO patterns (id, name)
+          VALUES ($1, $2)
+          ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
+        `, [p.id, p.name]);
+      }
+
+      await client.query(`SELECT setval(pg_get_serial_sequence('topics', 'id'), (SELECT MAX(id) FROM topics))`);
+      await client.query(`SELECT setval(pg_get_serial_sequence('patterns', 'id'), (SELECT MAX(id) FROM patterns))`);
+    } else {
+      console.log(`✔ ${existingQuestions} questions already present. Preserving user data and lookup tables.`);
     }
 
     // 5. Seed canonical questions
@@ -143,11 +151,11 @@ const initializeDatabase = async () => {
             id, title, slug, topic_id, pattern_id, difficulty, leetcode_url,
             source, source_url, article_url, notes, company_tags, estimated_time,
             learning_order, prerequisites, recommended_next, acceptance_rate, revision_priority,
-            created_at, updated_at
+            created_at, updated_at, hint
           )
           VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-            $14, $15, $16, $17, $18, COALESCE($19, NOW()), COALESCE($20, NOW())
+            $14, $15, $16, $17, $18, COALESCE($19, NOW()), COALESCE($20, NOW()), $21
           )
           ON CONFLICT (slug) DO UPDATE SET
             title = EXCLUDED.title,
@@ -166,6 +174,7 @@ const initializeDatabase = async () => {
             recommended_next = EXCLUDED.recommended_next,
             acceptance_rate = EXCLUDED.acceptance_rate,
             revision_priority = EXCLUDED.revision_priority,
+            hint = COALESCE(EXCLUDED.hint, questions.hint),
             updated_at = NOW();
         `, [
           q.id,
@@ -187,9 +196,11 @@ const initializeDatabase = async () => {
           q.acceptance_rate || null,
           q.revision_priority || null,
           q.created_at || null,
-          q.updated_at || null
+          q.updated_at || null,
+          q.hint || null
         ]);
       }
+      await client.query(`SELECT setval(pg_get_serial_sequence('questions', 'id'), (SELECT COALESCE(MAX(id), 1) FROM questions))`);
       console.log(`  ✔ Seeded ${questions.length} questions.`);
     }
 

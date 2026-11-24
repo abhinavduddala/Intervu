@@ -29,7 +29,7 @@ const createSubmission = async (req, res, next) => {
 const getSubmissionById = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const submission = await submissionsService.getSubmissionDetails(id);
+    const submission = await submissionsService.getSubmissionDetails(id, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -43,7 +43,7 @@ const getSubmissionById = async (req, res, next) => {
 const getSubmissionStatus = async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const submission = await submissionsService.getSubmissionStatus(id);
+    const submission = await submissionsService.getSubmissionStatus(id, req.user.id);
 
     res.status(200).json({
       success: true,
@@ -56,6 +56,10 @@ const getSubmissionStatus = async (req, res, next) => {
         stdout: submission.stdout,
         stderr: submission.stderr,
         compileOutput: submission.compileOutput,
+        language: submission.language,
+        passedCount: submission.passedCount,
+        totalCount: submission.totalCount,
+        testResults: submission.testResults,
       },
     });
   } catch (err) {
