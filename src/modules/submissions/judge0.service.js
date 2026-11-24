@@ -193,8 +193,18 @@ const runBatch = async (runs, { maxAttempts = 30, interval = 1000 } = {}) => {
     }
     return results;
   } catch (err) {
-    logger.error('Error in Judge0 runBatch:', err);
+    logger.error(`Error in Judge0 runBatch (${env.JUDGE0_API_URL}): ${err.message}`);
     if (err instanceof AppError) throw err;
+    if (/fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT/i.test(err.message)) {
+      throw new AppError(
+        `Could not reach the code runner (Judge0) at ${env.JUDGE0_API_URL}. Check JUDGE0_API_URL in the backend .env (for example https://ce.judge0.com) and restart the backend.`,
+        503,
+        'SERVICE_UNAVAILABLE'
+      );
+    }
+    if (/status 429/.test(err.message)) {
+      throw new AppError('The code runner is busy (rate limited). Please wait a few seconds and try again.', 429, 'TOO_MANY_REQUESTS');
+    }
     throw new AppError(`Code execution failed: ${err.message}`, 502, 'BAD_GATEWAY');
   }
 };

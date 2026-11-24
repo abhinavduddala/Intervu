@@ -16,6 +16,11 @@ const QUESTION_SELECT = `
   q.company_tags,
   q.estimated_time,
   q.hint,
+  q.learning_order,
+  q.acceptance_rate,
+  q.frequency,
+  q.prerequisites,
+  q.recommended_next,
   t.id   AS topic_id,
   t.name AS topic_name,
   p.id   AS pattern_id,
@@ -143,12 +148,32 @@ const buildFilters = (filters) => {
     values.push(`%${filters.search}%`);
   }
 
+  if (filters.company) {
+    conditions.push(`EXISTS (SELECT 1 FROM unnest(q.company_tags) AS ct WHERE LOWER(ct) = LOWER($${paramIndex++}))`);
+    values.push(filters.company);
+  }
+
+  if (filters.frequency) {
+    conditions.push(`LOWER(q.frequency) = LOWER($${paramIndex++})`);
+    values.push(filters.frequency);
+  }
+
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
   return { whereClause, values, paramIndex };
 };
 
-const findAll = async ({ topic, topicId, pattern, patternId, difficulty, search, page, limit }) => {
+// Sort options offered by the Question Explorer
+const SORT_ORDERS = {
+  learningOrder: 'COALESCE(q.learning_order, q.id) ASC, q.id ASC',
+  difficulty: "CASE q.difficulty WHEN 'easy' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END ASC, q.id ASC",
+  acceptanceRate: 'q.acceptance_rate DESC NULLS LAST, q.id ASC',
+  frequency: "CASE LOWER(q.frequency) WHEN 'very high' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 ELSE 5 END ASC, q.id ASC",
+  estimatedTime: 'q.estimated_time ASC NULLS LAST, q.id ASC',
+  title: 'LOWER(q.title) ASC',
+};
+
+const findAll = async ({ topic, topicId, pattern, patternId, difficulty, search, company, frequency, sortBy, page, limit }) => {
   let { whereClause, values, paramIndex } = buildFilters({
     topic,
     topicId,
@@ -156,7 +181,10 @@ const findAll = async ({ topic, topicId, pattern, patternId, difficulty, search,
     patternId,
     difficulty,
     search,
+    company,
+    frequency,
   });
+  const orderBy = SORT_ORDERS[sortBy] || SORT_ORDERS.learningOrder;
 
   const offset = (page - 1) * limit;
   values.push(limit, offset);
@@ -165,7 +193,7 @@ const findAll = async ({ topic, topicId, pattern, patternId, difficulty, search,
     `SELECT ${QUESTION_SELECT}
      ${QUESTION_FROM}
      ${whereClause}
-     ORDER BY q.created_at DESC, q.id DESC
+     ORDER BY ${orderBy}
      LIMIT $${paramIndex++} OFFSET $${paramIndex}`,
     values
   );
@@ -173,8 +201,8 @@ const findAll = async ({ topic, topicId, pattern, patternId, difficulty, search,
   return result.rows;
 };
 
-const countAll = async ({ topic, topicId, pattern, patternId, difficulty, search }) => {
-  const { whereClause, values } = buildFilters({ topic, topicId, pattern, patternId, difficulty, search });
+const countAll = async ({ topic, topicId, pattern, patternId, difficulty, search, company, frequency }) => {
+  const { whereClause, values } = buildFilters({ topic, topicId, pattern, patternId, difficulty, search, company, frequency });
 
   const result = await db.query(
     `SELECT COUNT(*)::INTEGER AS total

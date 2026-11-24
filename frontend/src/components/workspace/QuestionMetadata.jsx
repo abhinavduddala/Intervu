@@ -20,7 +20,7 @@ const QuestionMetadata = ({ question }) => {
         </div>
         <div>
           <div className="text-[10px] text-[#64748B] uppercase tracking-wider">Acceptance</div>
-          <div className="text-xs font-bold text-[#0F172A] mt-0.5">{question.acceptanceRate || 50}%</div>
+          <div className="text-xs font-bold text-[#0F172A] mt-0.5">{question.acceptanceRate != null ? `${question.acceptanceRate}%` : 'N/A'}</div>
         </div>
       </div>
 

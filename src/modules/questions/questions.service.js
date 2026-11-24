@@ -47,6 +47,11 @@ const formatQuestion = (row) => ({
   companyTags: row.company_tags,
   estimatedTime: row.estimated_time,
   hint: row.hint,
+  learningOrder: row.learning_order ?? row.id,
+  acceptanceRate: row.acceptance_rate != null ? parseFloat(row.acceptance_rate) : null,
+  frequency: row.frequency || null,
+  prerequisites: row.prerequisites || [],
+  recommendedNext: row.recommended_next || [],
 });
 
 const listQuestions = async (filters) => {

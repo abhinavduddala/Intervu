@@ -151,11 +151,11 @@ const initializeDatabase = async () => {
             id, title, slug, topic_id, pattern_id, difficulty, leetcode_url,
             source, source_url, article_url, notes, company_tags, estimated_time,
             learning_order, prerequisites, recommended_next, acceptance_rate, revision_priority,
-            created_at, updated_at, hint
+            created_at, updated_at, hint, frequency
           )
           VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
-            $14, $15, $16, $17, $18, COALESCE($19, NOW()), COALESCE($20, NOW()), $21
+            $14, $15, $16, $17, $18, COALESCE($19, NOW()), COALESCE($20, NOW()), $21, $22
           )
           ON CONFLICT (slug) DO UPDATE SET
             title = EXCLUDED.title,
@@ -175,6 +175,7 @@ const initializeDatabase = async () => {
             acceptance_rate = EXCLUDED.acceptance_rate,
             revision_priority = EXCLUDED.revision_priority,
             hint = COALESCE(EXCLUDED.hint, questions.hint),
+            frequency = COALESCE(EXCLUDED.frequency, questions.frequency),
             updated_at = NOW();
         `, [
           q.id,
@@ -197,7 +198,8 @@ const initializeDatabase = async () => {
           q.revision_priority || null,
           q.created_at || null,
           q.updated_at || null,
-          q.hint || null
+          q.hint || null,
+          q.frequency || null
         ]);
       }
       await client.query(`SELECT setval(pg_get_serial_sequence('questions', 'id'), (SELECT COALESCE(MAX(id), 1) FROM questions))`);

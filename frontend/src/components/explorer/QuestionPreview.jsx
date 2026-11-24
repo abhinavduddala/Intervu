@@ -110,7 +110,7 @@ const QuestionPreview = ({
     hint = 'No hint provided.',
     prerequisites = [],
     recommendedNext = [],
-    acceptanceRate = 50,
+    acceptanceRate,
     estimatedTime = 20,
   } = question;
 
@@ -154,7 +154,7 @@ const QuestionPreview = ({
             </div>
             <div className="flex justify-between">
               <span>Acceptance</span>
-              <span className="font-bold text-[#0F172A]">{acceptanceRate}%</span>
+              <span className="font-bold text-[#0F172A]">{acceptanceRate != null ? `${acceptanceRate}%` : 'N/A'}</span>
             </div>
           </div>
         </div>
