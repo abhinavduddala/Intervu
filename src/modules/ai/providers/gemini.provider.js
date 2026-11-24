@@ -26,10 +26,10 @@ const isConfigured = () =>
  * @param {string} systemPrompt
  * @param {string} userPrompt
  * @param {object} schema JSON schema for the response.
- * @param {{ timeoutMs?: number, temperature?: number }} [options]
+ * @param {{ timeoutMs?: number, temperature?: number, model?: string }} [options]
  * @returns {Promise<{ result: object, modelUsed: string }>}
  */
-const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs = 120000, temperature } = {}) => {
+const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs = 120000, temperature, model: modelOverride } = {}) => {
   if (!isConfigured()) {
     throw new AppError(
       'The AI service is not configured. Please set a valid GEMINI_API_KEY in the environment settings.',
@@ -41,7 +41,7 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
   const client = getGeminiClient();
 
   try {
-    const model = env.GEMINI_MODEL || 'gemini-2.5-flash';
+    const model = modelOverride || env.GEMINI_MODEL || 'gemini-2.5-flash';
     logger.info(`Sending content generation request to Gemini using model=${model}`);
 
     const response = await client.models.generateContent({
@@ -147,16 +147,45 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * generateStructured with retries and backoff for transient failures.
  * @param {{ retries?: number, timeoutMs?: number, temperature?: number }} [options]
  */
+// Primary model first, then the optional comma-separated GEMINI_FALLBACK_MODELS
+const modelChain = () => [
+  ...new Set(
+    [env.GEMINI_MODEL || 'gemini-2.5-flash', ...(env.GEMINI_FALLBACK_MODELS || '').split(',')]
+      .map((m) => m.trim())
+      .filter(Boolean)
+  ),
+];
+
+// Overload, quota and unavailable-model errors are worth trying on the next model
+const isModelSpecific = (err) =>
+  err instanceof AppError && ([429, 503, 404].includes(err.statusCode) || err.code === 'AI_QUOTA_EXCEEDED');
+
+/**
+ * generateStructured with retries and backoff for transient failures. When the
+ * current model is overloaded or out of quota, the next fallback model is tried.
+ * @param {{ retries?: number, timeoutMs?: number, temperature?: number }} [options]
+ */
 const generateStructuredWithRetry = async (systemPrompt, userPrompt, schema, { retries = 2, ...options } = {}) => {
-  for (let attempt = 0; ; attempt += 1) {
+  const models = modelChain();
+  let modelIndex = 0;
+  let retriesLeft = retries;
+  for (;;) {
     try {
-      return await generateStructured(systemPrompt, userPrompt, schema, options);
+      return await generateStructured(systemPrompt, userPrompt, schema, { ...options, model: models[modelIndex] });
     } catch (err) {
+      if (isModelSpecific(err) && modelIndex < models.length - 1) {
+        modelIndex += 1;
+        logger.warn(`AI request failed with ${err.statusCode}; switching to fallback model ${models[modelIndex]}`);
+        continue;
+      }
       const transient =
         err instanceof AppError && TRANSIENT_STATUS.includes(err.statusCode) && err.code !== 'AI_QUOTA_EXCEEDED';
-      if (!transient || attempt >= retries) throw err;
-      const delay = 1500 * 2 ** attempt + Math.floor(Math.random() * 500);
-      logger.warn(`AI request failed with ${err.statusCode}; retry ${attempt + 1}/${retries} in ${delay}ms`);
+      if (!transient || retriesLeft <= 0) throw err;
+      retriesLeft -= 1;
+      // Retry from the primary model after a backoff
+      modelIndex = 0;
+      const delay = 1500 * 2 ** (retries - retriesLeft - 1) + Math.floor(Math.random() * 500);
+      logger.warn(`AI request failed with ${err.statusCode}; retry ${retries - retriesLeft}/${retries} in ${delay}ms`);
       await sleep(delay);
     }
   }

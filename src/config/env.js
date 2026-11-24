@@ -16,6 +16,7 @@ const envSchema = z.object({
   OPENAI_MODEL: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(), // AI features return 503 until configured
   GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
+  GEMINI_FALLBACK_MODELS: z.string().optional(), // comma-separated, tried when the main model is busy
   CLIENT_URL: z.string().url('CLIENT_URL must be a valid URL').default('http://localhost:3000')
 });
 
