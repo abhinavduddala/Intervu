@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, ArrowLeft, Video, Mic, Volume2, ShieldCheck } from 'lucide-react';
 import { mockInterviewService } from '../../services/mockInterview.service';
 import { useCamera } from '../../hooks/useCamera';
@@ -52,6 +52,7 @@ const selectClass =
 
 const MockInterviewSetupPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const camera = useCamera();
   const tts = useSpeechSynthesis();
   const sttSupported = typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -81,12 +82,19 @@ const MockInterviewSetupPage = () => {
   useEffect(() => {
     mockInterviewService
       .getOptions()
-      .then(setOptions)
+      .then((opts) => {
+        setOptions(opts);
+        // Preselect a company passed from the Companies page
+        const requested = searchParams.get('company');
+        const match = requested && opts.companies.find((c) => c.name.toLowerCase() === requested.toLowerCase());
+        if (match) setForm((f) => ({ ...f, companyName: match.name }));
+      })
       .catch((err) => setLoadError(err.message || 'Could not load interview options.'));
     mockInterviewService
       .getActive()
       .then((a) => a && setActiveId(a.id))
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

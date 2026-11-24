@@ -25,6 +25,7 @@ import GapAnalysisTable from '../components/company/GapAnalysisTable';
 import PatternCard from '../components/company/PatternCard';
 import RoadmapTimeline from '../components/company/RoadmapTimeline';
 import ComparisonTable from '../components/company/ComparisonTable';
+import MockInterviewCompanyCard from '../components/mock-interview/MockInterviewCompanyCard';
 
 // Baseline configurations for all target firms
 const COMPANY_PROFILES = {
@@ -149,7 +150,8 @@ const CompanyPage = () => {
           { questionId: 3, questionTitle: `Longest Substring Without Repeating Characters`, topicName: 'Sliding Window', questionDifficulty: 'medium' }
         ];
       }
-      setRecommendations(recs || []);
+      // The API returns { recommendations: [...] }; accept a bare array too
+      setRecommendations(Array.isArray(recs) ? recs : recs?.recommendations || []);
     } catch (err) {
       console.error('Failed to fetch details:', err);
     } finally {
@@ -414,6 +416,8 @@ const CompanyPage = () => {
 
         {/* Right segment target details list (4 Columns) */}
         <div className="lg:col-span-4 space-y-6">
+
+          {selectedCompany && <MockInterviewCompanyCard company={selectedCompany} />}
           
           {/* AI recommendations card list */}
           <div className="bg-white border border-[#E2E8F0] p-5 rounded-xl shadow-sm space-y-4">
