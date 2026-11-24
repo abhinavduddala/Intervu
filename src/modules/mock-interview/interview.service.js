@@ -276,7 +276,8 @@ const createInterview = async (userId, input) => {
         sender: 'interviewer',
         message: opening.message,
         intent: 'question',
-        questionNumber: 1,
+        // A warm-up (e.g. self-introduction) is not one of the main questions
+        questionNumber: opening.isWarmUp ? null : 1,
         section: opening.section,
         topic: opening.topic,
         difficulty: opening.difficulty,
@@ -291,7 +292,7 @@ const createInterview = async (userId, input) => {
           followUps: 0,
           notes: [],
         },
-        questionsAsked: 1,
+        questionsAsked: opening.isWarmUp ? 0 : 1,
       });
     });
 
@@ -389,7 +390,7 @@ const submitAnswer = async (userId, id, { answer, clientMessageId, inputMode }) 
         interviewId: id,
         sender: 'candidate',
         message: answer,
-        questionNumber: interview.questions_asked,
+        questionNumber: interview.questions_asked || null,
         section: interview.state?.currentSection,
         inputMode: inputMode || 'text',
         clientMessageId,
@@ -408,11 +409,15 @@ const submitAnswer = async (userId, id, { answer, clientMessageId, inputMode }) 
   const remaining = remainingSeconds(interview);
   const state = interview.state || {};
   const answers = countAnswers(messages);
+  // Close on time, or once the last main question has had its follow-ups (max two)
   const forceClose =
-    remaining <= 0 ||
-    interview.questions_asked > interview.question_target ||
-    (interview.questions_asked >= interview.question_target && (state.followUps || 0) >= 1) ||
-    answers >= interview.question_target * 4;
+    remaining <= 0
+      ? 'time'
+      : interview.questions_asked > interview.question_target ||
+          (interview.questions_asked >= interview.question_target && (state.followUps || 0) >= 2) ||
+          answers >= interview.question_target * 4 + 1
+        ? 'questions'
+        : false;
 
   let turn;
   try {
@@ -430,7 +435,7 @@ const submitAnswer = async (userId, id, { answer, clientMessageId, inputMode }) 
   // Step 3: store the reply and update the running interview state
   const isClosing = forceClose || turn.shouldEnd || turn.intent === 'closing';
   const newQuestion = !isClosing && turn.isNewQuestion;
-  const questionNumber = newQuestion ? interview.questions_asked + 1 : interview.questions_asked;
+  const questionNumber = newQuestion ? interview.questions_asked + 1 : interview.questions_asked || null;
 
   const notes = [...(state.notes || [])];
   if (turn.notes) notes.push({ q: interview.questions_asked, quality: turn.answerQuality, note: turn.notes });
@@ -462,7 +467,7 @@ const submitAnswer = async (userId, id, { answer, clientMessageId, inputMode }) 
 
     await repo.updateInterview(client, id, {
       turnState: 'awaiting_answer',
-      questionsAsked: questionNumber,
+      questionsAsked: questionNumber || 0,
       state: {
         ...state,
         notes: notes.slice(-MAX_NOTES),

@@ -34,7 +34,7 @@ const AnswerReview = ({ review, highlight }) => {
         {open ? <ChevronDown className="h-4 w-4 mt-0.5 text-[#64748B]" /> : <ChevronRight className="h-4 w-4 mt-0.5 text-[#64748B]" />}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[11px] text-[#64748B]">Q{review.questionNumber}</span>
+            <span className="font-mono text-[11px] text-[#64748B]">{review.questionNumber ? `Q${review.questionNumber}` : 'Warm-up'}</span>
             <span className={`px-2 py-0.5 rounded border text-[10px] font-semibold ${verdict.className}`}>{verdict.label}</span>
             {highlight && <span className="text-[10px] font-semibold text-[#64748B]">{highlight}</span>}
           </div>

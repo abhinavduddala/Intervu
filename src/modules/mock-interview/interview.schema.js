@@ -41,8 +41,12 @@ const openingSchema = {
     section: { type: 'string', description: 'Plan section the first question belongs to.' },
     topic: { type: 'string', description: 'Topic of the first question.' },
     difficulty: { type: 'integer', description: 'Difficulty of the first question, 1 (easiest) to 5 (hardest).' },
+    isWarmUp: {
+      type: 'boolean',
+      description: 'True when the first question is a warm-up (for example a self-introduction) and not one of the main questions.',
+    },
   },
-  required: ['plan', 'message', 'section', 'topic', 'difficulty'],
+  required: ['plan', 'message', 'section', 'topic', 'difficulty', 'isWarmUp'],
 };
 
 const turnSchema = {
@@ -106,7 +110,7 @@ const evaluationSchema = {
     },
     answerReviews: {
       type: 'array',
-      description: 'One entry per main question that was asked.',
+      description: 'Exactly one entry per main question, with its follow-ups folded into the same entry. Use questionNumber 0 for a warm-up or introduction.',
       items: {
         type: 'object',
         properties: {
@@ -184,6 +188,17 @@ const strList = (value, maxItems, maxLen) =>
 
 const oneOf = (value, allowed, fallback) => (allowed.includes(value) ? value : fallback);
 
+// Fold duplicate reviews of the same question (e.g. a separate follow-up entry) into one
+const mergeReviews = (list, review) => {
+  const existing = list.find((r) => r.questionNumber === review.questionNumber);
+  if (!existing) return [...list, { ...review, parts: 1 }];
+  existing.score = Math.round((existing.score * existing.parts + review.score) / (existing.parts + 1));
+  existing.parts += 1;
+  existing.evidence = `${existing.evidence} ${review.evidence}`.trim().slice(0, 1600);
+  existing.suggestedAnswer = `${existing.suggestedAnswer}\n\n${review.suggestedAnswer}`.trim().slice(0, 4000);
+  return list;
+};
+
 const validateOpening = (raw) => {
   if (!raw || typeof raw !== 'object') throw invalid();
   const plan = Array.isArray(raw.plan)
@@ -198,6 +213,7 @@ const validateOpening = (raw) => {
     section: str(raw.section, 80) || plan[0]?.section || 'Introduction',
     topic: str(raw.topic, 120),
     difficulty: int(raw.difficulty, 1, 5, 2),
+    isWarmUp: raw.isWarmUp === true,
   };
 };
 
@@ -257,6 +273,8 @@ const validateEvaluation = (raw) => {
           evidence: str(a.evidence, 800),
           suggestedAnswer: str(a.suggestedAnswer, 2500),
         }))
+        .reduce(mergeReviews, [])
+        .map(({ parts, ...r }) => r)
     : [];
 
   const numbers = (list) =>
