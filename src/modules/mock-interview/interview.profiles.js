@@ -80,6 +80,7 @@ const COMPANIES = {
   Qualcomm: 'Strong emphasis on C/C++ fundamentals, operating systems, memory, bit manipulation and computer architecture basics.',
   Uber: 'Practical problem solving with real-world flavour, graphs and scalability awareness, and ownership in behavioral questions.',
   Flipkart: 'Problem solving and DSA depth (often medium to hard), machine coding style design questions and scalability awareness.',
+  IBM: 'Balanced loop of coding fundamentals (DSA, OOP), databases and SQL, plus project discussion and teamwork-focused behavioral questions. Cloud and enterprise awareness is a plus for experienced roles.',
   'Goldman Sachs': 'DSA and math-oriented problem solving, with attention to correctness and precision.',
   Atlassian: 'Practical coding, collaboration and values-based behavioral questions.',
   Netflix: 'Senior-leaning expectations: strong ownership, judgement and clear trade-off discussion.',
