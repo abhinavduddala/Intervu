@@ -94,7 +94,9 @@ Rules:
 - Keep the original problem's meaning, the same examples where possible, and realistic constraints.
 - Define a simple, unambiguous text input format (e.g. first line n, second line n space-separated integers). Represent linked lists and trees as level-order arrays.
 - Define an exact output format; for multiple valid answers, specify a canonical form (e.g. sorted) so outputs can be compared as text.
+- Every test case must have exactly one correct output. If the original problem allows several valid answers, either choose inputs that have a single answer or define a canonical output (e.g. the lexicographically smallest pair) in the output format.
 - Test case expected outputs must be exactly correct. Verify each one carefully.
+- Also provide a correct Python 3 reference solution; it is run against every test case and tests it disagrees with are discarded.
 - Starter code must compile/run as-is in every language, parse input fully, and only leave the core solve function to implement.`;
 
   const userPrompt = `Create the judged version of this problem:

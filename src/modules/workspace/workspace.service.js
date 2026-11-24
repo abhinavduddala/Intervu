@@ -8,7 +8,7 @@ const aiPrompt = require('../ai/ai.prompt');
 const { problemContentSchema } = require('../ai/ai.schema');
 const workspaceRepository = require('./workspace.repository');
 const { LANGUAGE_KEYS, GENERIC_TEMPLATES, getLanguage, listLanguages } = require('./languages');
-const { evaluate } = require('./workspace.judge');
+const { evaluate, outputsMatch } = require('./workspace.judge');
 
 const MAX_TEST_CASES = 15;
 const inflightGenerations = new Map();
@@ -33,7 +33,7 @@ const sanitizeContent = (raw) => {
   const testCases = (Array.isArray(raw.testCases) ? raw.testCases : [])
     .filter((t) => t && typeof t.input === 'string' && typeof t.expectedOutput === 'string')
     .slice(0, MAX_TEST_CASES)
-    .map((t, i) => ({ input: t.input, expectedOutput: t.expectedOutput, hidden: i < 3 ? false : Boolean(t.hidden) }));
+    .map((t) => ({ input: t.input, expectedOutput: t.expectedOutput }));
 
   const starterCode = {};
   LANGUAGE_KEYS.forEach((k) => {
@@ -52,8 +52,35 @@ const sanitizeContent = (raw) => {
       explanation: str(e.explanation),
     })),
     testCases,
+    referenceSolution: str(raw.referenceSolution),
     starterCode,
   };
+};
+
+/**
+ * Run Gemini's reference solution against the generated tests and drop any test
+ * whose expected output it disagrees with (wrong answers, or several valid answers).
+ * Skips verification when the reference cannot run or Judge0 is unreachable.
+ */
+const verifyTestCases = async (questionId, testCases, referenceSolution) => {
+  if (!referenceSolution.trim()) return testCases;
+  try {
+    const python = getLanguage('python');
+    const results = await judge0Service.runBatch(
+      testCases.map((t) => ({ sourceCode: referenceSolution, languageId: python.judge0Id, stdin: t.input }))
+    );
+    if (results.every((r) => r.statusId !== 3)) {
+      logger.warn(`Reference solution failed to run for question=${questionId}; keeping tests unverified`);
+      return testCases;
+    }
+    const kept = testCases.filter((t, i) => results[i]?.statusId === 3 && outputsMatch(results[i].stdout, t.expectedOutput));
+    const dropped = testCases.length - kept.length;
+    if (dropped) logger.warn(`Dropped ${dropped} unverified test case(s) for question=${questionId}`);
+    return kept.length ? kept : testCases;
+  } catch (err) {
+    logger.warn(`Test verification skipped for question=${questionId}: ${err.message}`);
+    return testCases;
+  }
 };
 
 const generateProblemContent = async (question) => {
@@ -66,6 +93,9 @@ const generateProblemContent = async (question) => {
   if (!content.testCases.length) {
     throw new Error('Gemini returned no usable test cases');
   }
+  const verified = await verifyTestCases(question.id, content.testCases, content.referenceSolution);
+  // The first three verified tests are shown to the user; the rest are hidden
+  content.testCases = verified.map((t, i) => ({ ...t, hidden: i >= 3 }));
   await workspaceRepository.saveProblemContent(question.id, content, modelUsed);
   logger.info(`Generated workspace problem content for question=${question.id} (${content.testCases.length} tests)`);
   return { content, modelName: modelUsed };

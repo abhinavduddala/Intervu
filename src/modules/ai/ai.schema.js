@@ -170,6 +170,10 @@ const problemContentSchema = {
         required: ["input", "expectedOutput", "hidden"]
       }
     },
+    referenceSolution: {
+      type: "string",
+      description: "A complete, correct Python 3 program that reads stdin in the documented format and prints the expected output. Used to verify the test cases; never shown to the user."
+    },
     starterCode: {
       type: "object",
       description: "Starter program per language. Each must fully read and parse stdin in the documented format, call an empty solve function (with a TODO comment and a placeholder return), and print the result in the documented output format. Java must use `public class Main`.",
@@ -177,7 +181,7 @@ const problemContentSchema = {
       required: STARTER_LANGUAGES
     }
   },
-  required: ["description", "inputFormat", "outputFormat", "constraints", "examples", "testCases", "starterCode"],
+  required: ["description", "inputFormat", "outputFormat", "constraints", "examples", "testCases", "referenceSolution", "starterCode"],
 };
 
 module.exports = {
