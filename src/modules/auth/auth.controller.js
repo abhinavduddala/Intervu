@@ -24,8 +24,8 @@ const clearAuthCookie = (res) => {
 
 const register = async (req, res, next) => {
   try {
-    const { email, password, role } = req.body;
-    const { user, token } = await authService.register({ email, password, role });
+    const { email, password } = req.body;
+    const { user, token } = await authService.register({ email, password, role: 'user' });
 
     setAuthCookie(res, token);
 

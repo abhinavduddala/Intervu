@@ -12,7 +12,8 @@ const registerSchema = z.object({
   body: z.object({
     email: z.string().email('A valid email address is required'),
     password: passwordSchema,
-    role: z.enum(['admin', 'user']).optional(),
+    // Public sign-up can only create regular users; admins are promoted in the database
+    role: z.enum(['user']).optional(),
   }),
 });
 
