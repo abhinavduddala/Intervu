@@ -70,6 +70,7 @@ const formatMessage = (m, mode) => ({
   questionNumber: m.question_number,
   section: m.section,
   inputMode: m.input_mode,
+  clientMessageId: m.sender === 'candidate' ? m.client_message_id : undefined,
   feedback: mode === 'practice' && m.meta?.practiceFeedback ? m.meta.practiceFeedback : null,
   createdAt: m.created_at,
 });

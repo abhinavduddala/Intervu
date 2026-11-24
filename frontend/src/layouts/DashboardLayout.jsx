@@ -10,6 +10,7 @@ import {
   Brain,
   RotateCcw,
   Building2,
+  Video,
   User,
   Settings,
   LogOut,
@@ -44,6 +45,7 @@ const DashboardLayout = () => {
     { path: '/workspace/two-sum', label: 'AI Review', icon: Brain },
     { path: '/revision', label: 'Revision Planner', icon: RotateCcw },
     { path: '/company', label: 'Companies', icon: Building2 },
+    { path: '/mock-interview', label: 'Mock Interview', icon: Video },
     { path: '/profile', label: 'Profile', icon: User },
     { path: '/settings', label: 'Settings', icon: Settings },
   ];
@@ -69,7 +71,7 @@ const DashboardLayout = () => {
         <nav className="flex-1 p-3.5 flex flex-col gap-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || (item.path === '/mock-interview' && location.pathname.startsWith('/mock-interview/'));
             return (
               <Link
                 key={item.path}
@@ -130,7 +132,7 @@ const DashboardLayout = () => {
           <nav className="p-3.5 flex flex-col gap-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path || (item.path === '/mock-interview' && location.pathname.startsWith('/mock-interview/'));
               return (
                 <Link
                   key={item.path}

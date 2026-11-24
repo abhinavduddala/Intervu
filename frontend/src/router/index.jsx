@@ -27,6 +27,10 @@ import ProfilePage from '../pages/ProfilePage';
 import SettingsPage from '../pages/SettingsPage';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import MockInterviewHomePage from '../pages/mock-interview/MockInterviewHomePage';
+import MockInterviewSetupPage from '../pages/mock-interview/MockInterviewSetupPage';
+import MockInterviewWorkspacePage from '../pages/mock-interview/MockInterviewWorkspacePage';
+import MockInterviewReportPage from '../pages/mock-interview/MockInterviewReportPage';
 
 const router = createBrowserRouter([
   {
@@ -102,6 +106,22 @@ const router = createBrowserRouter([
       {
         path: 'revision',
         element: <RevisionPage />,
+      },
+      {
+        path: 'mock-interview',
+        element: <MockInterviewHomePage />,
+      },
+      {
+        path: 'mock-interview/new',
+        element: <MockInterviewSetupPage />,
+      },
+      {
+        path: 'mock-interview/:id',
+        element: <MockInterviewWorkspacePage />,
+      },
+      {
+        path: 'mock-interview/:id/report',
+        element: <MockInterviewReportPage />,
       },
       {
         path: 'profile',
