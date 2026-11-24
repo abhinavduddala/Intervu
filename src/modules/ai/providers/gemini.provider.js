@@ -126,6 +126,9 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
       throw new AppError('The AI service returned an error. Please try again.', err.status || 502, 'BAD_GATEWAY');
     }
 
+    if (err.name === 'AbortError' || /timed? ?out|aborted/i.test(err.message || '')) {
+      throw new AppError('The AI service timed out. Please try again.', 504, 'GATEWAY_TIMEOUT');
+    }
     throw new AppError('Could not reach the AI service. Please try again.', 502, 'BAD_GATEWAY');
   }
 };
@@ -156,9 +159,9 @@ const modelChain = () => [
   ),
 ];
 
-// Overload, quota and unavailable-model errors are worth trying on the next model
+// Overload, quota, timeout and unavailable-model errors are worth trying on the next model
 const isModelSpecific = (err) =>
-  err instanceof AppError && ([429, 503, 404].includes(err.statusCode) || err.code === 'AI_QUOTA_EXCEEDED');
+  err instanceof AppError && ([429, 503, 504, 404].includes(err.statusCode) || err.code === 'AI_QUOTA_EXCEEDED');
 
 /**
  * generateStructured with retries and backoff for transient failures. When the
