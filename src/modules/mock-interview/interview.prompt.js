@@ -129,6 +129,9 @@ ${describeConfig(interview)}`;
   } else {
     lines.push('Assess the latest candidate answer, then write your next message.');
   }
+  if (interview.mode !== 'practice') {
+    lines.push('Reminder: realistic mode. Open with a neutral acknowledgement at most ("Okay." or "Got it."), with no praise or judgement of the answer.');
+  }
 
   return { systemPrompt, userPrompt: lines.join('\n\n') };
 };

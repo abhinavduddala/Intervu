@@ -179,7 +179,8 @@ const mockInterviewWorker = new Worker(
       return { success: true };
     } catch (err) {
       // An overloaded AI (503) is worth retrying here; a missing configuration is not
-      const retryable = isRetryable(err) || (err.statusCode === 503 && geminiProvider.isConfigured());
+      const retryable =
+        err.code !== 'AI_QUOTA_EXCEEDED' && (isRetryable(err) || (err.statusCode === 503 && geminiProvider.isConfigured()));
       const finalErr = err instanceof UnrecoverableError || retryable ? err : new UnrecoverableError(err.message);
       logger.error(`[Worker: MockInterview] Job ${job.id} attempt ${job.attemptsMade + 1} failed: ${err.message}`);
       if (isFinalAttempt(job, finalErr)) {

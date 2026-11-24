@@ -432,6 +432,8 @@ const submitAnswer = async (userId, id, { answer, clientMessageId, inputMode }) 
     throw err;
   }
 
+  if (interview.mode !== 'practice') turn.message = schemas.stripPraise(turn.message);
+
   // Step 3: store the reply and update the running interview state
   const isClosing = forceClose || turn.shouldEnd || turn.intent === 'closing';
   const newQuestion = !isClosing && turn.isNewQuestion;

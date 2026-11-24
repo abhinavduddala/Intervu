@@ -105,6 +105,13 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
         throw new AppError('The AI service could not process this request.', 400, 'BAD_REQUEST');
       }
       if (err.status === 429 || (err.status === 403 && message.includes('quota'))) {
+        if (isLongQuotaWait(err.message)) {
+          throw new AppError(
+            'The AI service has reached its usage limit for now. Please try again later.',
+            503,
+            'AI_QUOTA_EXCEEDED'
+          );
+        }
         throw new AppError('The AI service is receiving too many requests. Please retry in a few seconds.', 429, 'TOO_MANY_REQUESTS');
       }
       if (err.status === 403) {
@@ -123,6 +130,15 @@ const generateStructured = async (systemPrompt, userPrompt, schema, { timeoutMs 
   }
 };
 
+// A daily quota (or a suggested wait of minutes or more) will not clear with a short retry
+const isLongQuotaWait = (raw = '') => {
+  if (/per ?day/i.test(raw)) return true;
+  const match = raw.match(/retry(?:Delay"?\s*:\s*"|\s+in\s+)(\d+(?:\.\d+)?)\s*(h|m|s)/i);
+  if (!match) return false;
+  const seconds = Number(match[1]) * ({ h: 3600, m: 60, s: 1 }[match[2].toLowerCase()]);
+  return seconds >= 120;
+};
+
 // Overload, rate-limit, timeout and bad-output errors are worth a short retry
 const TRANSIENT_STATUS = [429, 502, 503, 504];
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -136,7 +152,8 @@ const generateStructuredWithRetry = async (systemPrompt, userPrompt, schema, { r
     try {
       return await generateStructured(systemPrompt, userPrompt, schema, options);
     } catch (err) {
-      const transient = err instanceof AppError && TRANSIENT_STATUS.includes(err.statusCode);
+      const transient =
+        err instanceof AppError && TRANSIENT_STATUS.includes(err.statusCode) && err.code !== 'AI_QUOTA_EXCEEDED';
       if (!transient || attempt >= retries) throw err;
       const delay = 1500 * 2 ** attempt + Math.floor(Math.random() * 500);
       logger.warn(`AI request failed with ${err.statusCode}; retry ${attempt + 1}/${retries} in ${delay}ms`);

@@ -188,6 +188,16 @@ const strList = (value, maxItems, maxLen) =>
 
 const oneOf = (value, allowed, fallback) => (allowed.includes(value) ? value : fallback);
 
+// Realistic mode must not leak verdicts; drop praising sentences the AI adds anyway
+const PRAISE =
+  /\b(great|excellent|awesome|fantastic|impressive|nice (job|work|answer)|well done|well explained|well covered|spot on|exactly right|that'?s (right|correct)|you'?re (right|correct)|very (clear|good|thorough)|solid (foundation|answer|understanding|grasp|start|background)|good (job|work|answer|point|explanation|start|approach|thinking))\b/i;
+const stripPraise = (message) => {
+  const sentences = message.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [message];
+  const kept = sentences.filter((s) => s.includes('?') || !PRAISE.test(s));
+  const result = kept.join('').trim();
+  return result || message;
+};
+
 // Fold duplicate reviews of the same question (e.g. a separate follow-up entry) into one
 const mergeReviews = (list, review) => {
   const existing = list.find((r) => r.questionNumber === review.questionNumber);
@@ -311,6 +321,7 @@ module.exports = {
   turnSchema,
   evaluationSchema,
   validateOpening,
+  stripPraise,
   validateTurn,
   validateEvaluation,
 };
